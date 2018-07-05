@@ -1,0 +1,26 @@
+<project>
+ <properties version_code="1" logicalWidth="600" scaleMode="7" logicalHeight="800" mouseToTouch="1" html5_fbload="100" osx_bundle="com.yourdomain." html5_host="" app_icon="" orientation="0" html5_mem="256" tv_icon="" app_name="" windowWidth="0" iosDevice="0" version="1.0" build_number="1" touchToMouse="1" win_domain="giderosmobile.com" vsync="0" packageName="com.yourdomain.yourapp" splash_h_image="" fps="60" encryptAssets="0" osx_domain="giderosmobile.com" osx_org="GiderosMobile" osx_category="5" encryptCode="0" backgroundColor="#ffffff" winrt_package="com.yourdomain.yourapp" splash_v_image="" winrt_org="GiderosMobile" disableSplash="0" ios_bundle="com.yourdomain." mouseTouchOrder="0" html5_pack="0" architecture="0" windowHeight="0" splashScaleMode="0" android_template="0" autorotation="0" osx_installerId="" retinaDisplay="0" html5_fbinstant="0" osx_signingId="" win_org="GiderosMobile" exportMode="0">
+  <imageScales/>
+  <plugins/>
+  <exports/>
+ </properties>
+ <file source="ndShape.lua"/>
+ <file source="animal.lua"/>
+ <file source="flippingCard.lua"/>
+ <file source="tkhnomanZoom.lua"/>
+ <file source="background.lua"/>
+ <file source="Chunck.lua"/>
+ <file source="World.lua"/>
+ <file source="demoManager.lua"/>
+ <file source="procgen.lua"/>
+ <file source="main.lua"/>
+ <dependency to="Chunck.lua" from="World.lua"/>
+ <dependency to="flippingCard.lua" from="demoManager.lua"/>
+ <dependency to="background.lua" from="demoManager.lua"/>
+ <dependency to="Chunck.lua" from="demoManager.lua"/>
+ <dependency to="World.lua" from="demoManager.lua"/>
+ <dependency to="tkhnomanZoom.lua" from="demoManager.lua"/>
+ <dependency to="procgen.lua" from="demoManager.lua"/>
+ <dependency to="ndShape.lua" from="flippingCard.lua"/>
+ <dependency to="Chunck.lua" from="flippingCard.lua"/>
+</project>
