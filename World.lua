@@ -1,31 +1,47 @@
 World = Core.class(Sprite)
 local CHUNCK_MARGIN = 14
-
+local OVERVIEW_ANGLE = 40
 
 function World:init(...)
 	--  print(self)
 	self.chunckIndex = {} -- index x-y des chuncks
 	self.n = 0 -- nombre de chuncks déja créé
 	self.edgeLength = 1 -- largeur coté carré carte
-	self.chuncks = {} -- chuncks déja créé
+	self.chuncks = {} -- chuncks
+	self.cards = {} -- cards
 	self.toBeGenerated = {} -- chuncks en cours de génération
 	self.coBuildChunck = nil -- coroutine génération des chuncks
-	-- fond du monde (visible quand on retourne les cases)
-	self.background = Pixel.new(0, 1, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9)
-	self.fullMap = Sprite.new() -- conteneur des cases
-	self:addChild(self.background)
-	self:addChild(self.fullMap)
+
+	self:setAnchorPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9 / 2)
 	-- self:setAnchorPoint(0.5, 0.5)
+	
+	-- fond du monde (visible quand on retourne les cases)
+	self.background = Pixel.new(0x446644, 1, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5)
+	self.background:setPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2)
+	self.background:setAnchorPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2)
+	self:addChild(self.background)
+	
+	-- conteneur des cases
+	self.fullMap = Sprite.new()
+	self.fullMap:setPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2)
+	self:addChild(self.fullMap)
+	
+	-- open first chunck
 	self:setNextChunck()
-	self:openChunck({ type="home", x=self.nextX, y=self.nextY })
-	self.nextX, self.nextY = nil, nil
+	self:openChunck({ type="home" })
+	
+	self:setRotationX(OVERVIEW_ANGLE)
+	-- local m = Matrix.new()
+	-- m:setRotationX(45)
+	-- self.background:setMatrix(m)
+	-- self.fullMap:setMatrix(m)
 end
 
 function World:setNextChunck()
 	local x, y
-	local l, n = self.edgeLength, self.n
+	local n, l = self.n, self.edgeLength
 	if n == 0 then
-	    l, x, y, n = 1, 0, 0, 1
+	    n, x, y, l = 1, 0, 0, 1
 	else
 		n = n + 1
 		if n > l * l then -- élargissement du carré-carte
@@ -52,9 +68,10 @@ function World:setNextChunck()
 end
 
 function World:turnChunckIntoCard(chunck)
+	chunck:getBack():setZ(0)
 	local card = FlippingCard:new(true, chunck, false)
 	card:setPosition(chunck.x * (CHUNCK_SIZE + CHUNCK_MARGIN), chunck.y * (CHUNCK_SIZE + CHUNCK_MARGIN))
-	card:addEventListener(Event.TOUCHES_END, card.touchFlip, card)
+	table.insert(self.cards, card)
 	self.fullMap:addChild(card)
 end
 
@@ -67,10 +84,10 @@ function World:openChunck(def)
 	local newChunck = Chunck.new(def)
 	local newBack = newChunck:getBack()
 	newBack:setAnchorPoint(0.5, 0.5)
-	newBack:setZ(0)
+	newBack:setZ(1)
 	newBack:setPosition(newChunck.x * (CHUNCK_SIZE + CHUNCK_MARGIN), newChunck.y * (CHUNCK_SIZE + CHUNCK_MARGIN))
-	self.background:addChild(newBack)
-	
+	self.fullMap:addChild(newBack)
+
 	table.insert(self.chuncks, newChunck)
 	table.insert(self.toBeGenerated, newChunck)
 	if self.coBuildChunck == nil then
@@ -112,7 +129,77 @@ function World:resumeGeneration()
 	end
 end
 
+function World:doFocusing()
+	local p = self:getParent()
+	local sc = p:getScaleX()
+	local stillWork = false;
+	
+	if self.focusCard then
+		if sc <= 0.86 then
+			p:setScale(sc + 0.04, sc + 0.04, sc + 0.04)
+			stillWork = true
+		end
+		if self:getRotationX() > 0 then
+			self:setRotationX(self:getRotationX() - 2)
+			stillWork = true
+		end
+		
+		local cx, cy = self.focusCard:getPosition()
+		local ax, ay = self:getAnchorPosition()
+		print("z z cx cy ax ay", self:getScaleX(), p:getScaleX(), cx, cy, ax, ay)
+		local pi = Pixel.new(0x264040, 1, 10, 10);
+		pi:setPosition(cx, cy)
+		self.fullMap:addChild(pi);
+		-- self:zoomTo(-cx / p:getScaleX(), -cy / p:getScaleX())
+		-- self:zoomTo(-cx * self:getScaleX() / p:getScaleX(), -cy * self:getScaleX() / p:getScaleX())
+		self:zoomTo(-cx * self:getScaleX(), -cy * self:getScaleX())
+	else
+		if sc > 0.3 then
+			p:setScale(sc - 0.04, sc - 0.04, sc - 0.04)
+			stillWork = true
+		end
+		if self:getRotationX() < OVERVIEW_ANGLE then
+			self:setRotationX(self:getRotationX() + 2)
+			stillWork = true
+		end
+	end
+	_ = stillWork or self:removeEventListener(Event.ENTER_FRAME, self.doFocusing, self)
+end
+
+function World:unfocus(card)
+	self.focusCard = nil
+	self:addEventListener(Event.ENTER_FRAME, self.doFocusing, self)
+end
+
+function World:focus(card)
+	self.focusCard = card
+	self:addEventListener(Event.ENTER_FRAME, self.doFocusing, self)
+end
+
+
+function World:touchCard(event)
+	local touch = event.touch
+	for _, card in pairs(self.cards) do
+		if card:hitTestPoint(touch.x, touch.y, true) then
+			local lastCard = self.focusCard
+			if card.up and not card.goingUp or not card.up and card.goingUp then
+				self:unfocus()
+			else
+				self:focus(card)
+				card:flip()
+			end
+			card:goUp()
+			if lastCard and lastCard ~= card and (lastCard.up and not lastCard.goingUp or not lastCard.up and lastCard.goingUp) then
+				lastCard:goUp()
+			end
+		end
+	end
+end
+
+
 world = World.new()
+
+stage:addEventListener(Event.TOUCHES_END, World.touchCard, world)
 
 stage:addEventListener(Event.ENTER_FRAME, function()
 	world:resumeGeneration()

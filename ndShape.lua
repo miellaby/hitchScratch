@@ -1,6 +1,6 @@
 --[[ ==============================================================================
 TODO
-  - add rounded rectangle to class - why are rounded rects jagged?
+  - add rounded rectangle to class - why are rounded rects jagged? [DONE]
   - make sure currentpoint and firstpoint are always set when drawing
   - add comments/documentation
   - add examples

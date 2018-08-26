@@ -1,35 +1,85 @@
 --  http://giderosmobile.com/forum/discussion/2269/pinch-to-zoom
 
-
 --Function to get range between touch/coord
 local function getDelta(point1, point2)
 	local dx = point1.x - point2.x
 	local dy = point1.y - point2.y
 	return math.sqrt(dx * dx + dy * dy)
 end
- 
+
+local function goToTarget(self, event)
+	local _zoom = self._zoom
+	local targetX, targetY, idTouchExist = _zoom.targetX, _zoom.targetY, _zoom.idTouchExist
+	
+	-- limit X,Y move into min and max ranges
+	local noTouch = not idTouchExist[1] and not idTouchExist[2];
+	if noTouch then
+		if targetX < _zoom.rightLimit then _zoom.targetX, targetX = _zoom.rightLimit, _zoom.rightLimit
+		elseif targetX > _zoom.leftLimit then _zoom.targetX, targetX = _zoom.leftLimit, _zoom.leftLimit
+		end
+		if targetY < _zoom.downLimit then _zoom.targetY, targetY = _zoom.downLimit, _zoom.downLimit
+		elseif targetY > _zoom.upLimit then _zoom.targetY, targetY = _zoom.upLimit, _zoom.upLimit
+		end
+	end
+	
+	local move = false
+	if targetX ~= self:getX() then 
+		local delta = ( self:getX() - targetX ) * 0.3
+		if math.abs(delta) > 1 then
+			self:setX(self:getX() - delta)
+		else
+			self:setX(targetX)
+			_zoom.targetX = self:getX()
+		end
+		move = true
+	end 
+	if targetY ~= self:getY() then 
+		local delta = ( self:getY() - targetY ) * 0.3
+		if math.abs(delta) > 1 then
+			local before = self:getY()
+			self:setY(self:getY() - delta)
+			-- print("diffY", before, self:getY(), targetY, delta)
+		else
+			-- print("finishY", self:getY(), targetY)
+			self:setY(targetY)
+			_zoom.targetY = self:getY()
+		end
+		move = true
+	end 
+	if noTouch and not move then
+		self:removeEventListener(Event.ENTER_FRAME, goToTarget, self)
+	end
+end
+
+function zoomTo(self, x, y)
+	local _zoom = self._zoom
+	_zoom.targetX, _zoom.targetY = x, y
+	self:addEventListener(Event.ENTER_FRAME, goToTarget, self)
+end
+
 function handleZoom(self, event)
 	local scalingHappen, movingHappen = false, false
-	local parent, touchPoints, idTouchExist, scaleRev = self:getParent(), self.touchPoints, self.idTouchExist, self.scaleRev
-	if touchPoints == nil then
-		-- first call
-	    touchPoints = { {}, {} }
-		idTouchExist = { false, false }
-		scaleRev = (1 / parent:getScaleX())
-		self.touchPoints  = touchPoints
-		self.idTouchExist = idTouchExist
-		self.scaleRev = scaleRev
-	end
-	print("scaleRev", scaleRev)
+	local _zoom = self._zoom
+	local parent, touchPoints, idTouchExist = self:getParent(), _zoom.touchPoints, _zoom.idTouchExist
+
 	if event.type == "mouseWheel" then
+		local lx, ly = parent:globalToLocal(event.x, event.y)
+		
 		local ratio = (360 + event.wheel * 0.5) / 360
-		local lx, ly = self:globalToLocal(event.x, event.y)
-		local newScale = parent:getScaleX() * ratio
-		parent:setScale(newScale)
-		local nlx, nly = self:globalToLocal(event.x, event.y)
-		scaleRev = 1 / newScale
-		self:setX(self:getX() + (nlx - lx) * 1)
-		self:setY(self:getY() + (nly - ly) * 1)
+		local oldScale = parent:getScaleX()
+		local newScale = oldScale * ratio
+		if newScale > 1.0  then
+			newScale = 1.0
+		elseif newScale < _zoom.min then
+			newScale = _zoom.min
+		end	
+		parent:setScale(newScale, newScale, newScale)
+
+		local nlx, nly = parent:globalToLocal(event.x, event.y)
+		_zoom.targetX = self:getX() + nlx - lx
+		_zoom.targetY = self:getY() + nly - ly
+		self:setX(_zoom.targetX)
+		self:setY(_zoom.targetY)
 		movingHappen = true
 		scalingHappen = true
 		event:stopPropagation()		
@@ -49,8 +99,8 @@ function handleZoom(self, event)
 				touchPoints[id].y = touchGet.y
 
 				local scale = parent:getScaleX()
-				self.x0 = touchGet.x - self:getX() * scale
-				self.y0 = touchGet.y - self:getY() * scale
+				_zoom.x0 = touchGet.x - self:getX() * scale
+				_zoom.y0 = touchGet.y - self:getY() * scale
  
 			elseif not idTouchExist[id] then
 				--Get the second Finger
@@ -64,111 +114,121 @@ function handleZoom(self, event)
 				local touchCX, touchCY = (touchPoints[1].x + touchPoints[2].x) * 0.5, (touchPoints[1].y + touchPoints[2].y) * 0.5
 				local scale = parent:getScaleX()
 				if deltaTouch > 0 then
-					self.oriDeltaTouch = deltaTouch
-					self.oriScale = scale
+					_zoom.oriDeltaTouch = deltaTouch
+					_zoom.oriScale = scale
 				end
  
-				self.x0 = touchCX - self:getX() * scale
-				self.y0 = touchCY - self:getY() * scale
+				_zoom.x0 = touchCX - self:getX() * scale
+				_zoom.y0 = touchCY - self:getY() * scale
  			end
  
 			idTouchExist[id] = true
  
 		elseif event.type == "touchesMove" then
+			if _zoom.x0 == nil then return end -- can happen if activation under already touched screen
+			local scaleRev = 1 / parent:getScaleX() 
+				
 			-- save Touch Pos
 			touchPoints[id].x = touchGet.x
 			touchPoints[id].y = touchGet.y
- 
 			if not idTouchExist[otherID] then
 				-- If there is one Touch then move
-				self:setX((touchGet.x  - self.x0) * scaleRev)
-				self:setY((touchGet.y  - self.y0) * scaleRev)
+				_zoom.targetX = (touchGet.x  - _zoom.x0) * scaleRev
+				_zoom.targetY = (touchGet.y  - _zoom.y0) * scaleRev
 				movingHappen = true
  
 			else
 				-- If there is second finger Then Scale And Move	
  
 				local deltaTouch = getDelta(touchPoints[1], touchPoints[2]) 
-				local scaler = deltaTouch / self.oriDeltaTouch
- 
+				local scaler = deltaTouch / _zoom.oriDeltaTouch
+				
 				if scaler > 0 then
-					local newScale = self.oriScale * scaler
+					local newScale = _zoom.oriScale * scaler
 					parent:setScale(newScale)
 					scaleRev = 1 / newScale
 					scalingHappen = true
 				end
  
 				local touchCX, touchCY = (touchPoints[1].x + touchPoints[2].x) * 0.5, (touchPoints[1].y + touchPoints[2].y) * 0.5
-				self:setX((touchCX - self.x0) * scaleRev)
-				self:setY((touchCY  - self.y0) * scaleRev)
+				_zoom.targetX = ((touchCX - _zoom.x0) * scaleRev);
+				_zoom.targetY = ((touchCY - _zoom.y0) * scaleRev);
 				movingHappen = true
 			end
  
 			event:stopPropagation()
- 
- 
-			-- Using animation also nice...
-			-- So just give some condition to let  ENTER_FRAME event do the scaling / moving after
-			-- And then let them move like this:
-				-- if self.targetX ~= self:getX() then 
-				-- 	local delta = ( self:getX() - self.TargetX ) * 0.1
-				--		if delta > 0 then delta = ceil(delta) else delta = floor(delta) end
-				--		self:setX( self:getX() - delta )
-				-- end 
-			-- But it more complexer than that, i think
- 
- 
 		elseif event.type == "touchesEnd" then
  
 			if idTouchExist[otherID] then
-				self.x0 = touchPoints[otherID].x  -( self:getX()* parent:getScaleX() )
-				self.y0 = touchPoints[otherID].y  - ( self:getY()* parent:getScaleX() )
+				local scale = parent:getScaleX()
+				_zoom.x0 = touchPoints[otherID].x - self:getX()* scale
+				_zoom.y0 = touchPoints[otherID].y - self:getY()* scale
 			end	
 
 			idTouchExist[id] = false
  
-			event:stopPropagation()
+			_ = _zoom.capture and event:stopPropagation()
+			if not idTouchExist[otherId] then _zoom.capture = false end
 		end
 	end
  
 	if movingHappen then
-		-- limit X,Y max and min
-		if self:getY() < self.downLimit then self:setY( self.downLimit )
-		elseif self:getY() > self.upLimit then self:setY(  self.upLimit )
-		end
-		if self:getX() < self.rightLimit then self:setX( self.rightLimit )
-		elseif self:getX() > self.leftLimit then self:setX(  self.leftLimit )
+		self:addEventListener(Event.ENTER_FRAME, goToTarget, self)
+		-- as soon as with move from 2px, one capture touchesEnd
+		if not _zoom.capture and math.abs(_zoom.targetX - self:getX()) + math.abs(_zoom.targetX - self:getX()) > 10 then
+			_zoom.capture = true
 		end
 	end
 	
 	if scalingHappen then
 		-- limit scaling
 		if parent:getScaleX() > 1.0  then
-			parent:setScale(1.0)
-			scaleRev = 1
-		elseif parent:getScaleX() < self.minZoom then
-			parent:setScale(self.minZoom)
-			scaleRev = 1 / self.minZoom
+			parent:setScale(1.0, 1.0, 1.0)
+		elseif parent:getScaleX() < _zoom.min then
+			parent:setScale(_zoom.min, _zoom.min, _zoom.min)
 		end	
-		
-		self.scaleRev = scaleRev
 	end
 
 	return true
 end
-
-function attachZoom(zoomable, minZoom, maxMoveRatio)
-	local halfWidth, halfHeight = zoomable:getWidth() * maxMoveRatio, zoomable:getHeight() * maxMoveRatio
-
-	-- Some of initialization that i need for Pinch-Zoom
-	zoomable.minZoom = minZoom
-	zoomable.leftLimit = halfWidth
-	zoomable.rightLimit = -halfWidth
-	zoomable.upLimit = halfHeight
-	zoomable.downLimit = -halfHeight
  
-	zoomable:addEventListener(Event.TOUCHES_BEGIN, handleZoom, zoomable)
-	zoomable:addEventListener(Event.TOUCHES_MOVE, handleZoom, zoomable)
-	zoomable:addEventListener(Event.TOUCHES_END, handleZoom, zoomable)
-	zoomable:addEventListener(Event.MOUSE_WHEEL, handleZoom, zoomable)
+local currentZoomable
+function attachZoom(self, minZoom, maxMoveRatio)
+	if currentZoomable then
+		currentZoomable:removeEventListener(Event.TOUCHES_BEGIN, handleZoom, self)
+		currentZoomable:removeEventListener(Event.TOUCHES_MOVE, handleZoom, self)
+		currentZoomable:removeEventListener(Event.TOUCHES_END, handleZoom, self)
+		currentZoomable:removeEventListener(Event.MOUSE_WHEEL, handleZoom, self)
+		currentZoomable:removeEventListener(Event.ENTER_FRAME, goToTarget, self)
+	end
+	currentZoomable = self
+	self:addEventListener(Event.TOUCHES_BEGIN, handleZoom, self)
+	self:addEventListener(Event.TOUCHES_MOVE, handleZoom, self)
+	self:addEventListener(Event.TOUCHES_END, handleZoom, self)
+	self:addEventListener(Event.MOUSE_WHEEL, handleZoom, self)
+	
+	local halfWidth, halfHeight = self:getWidth() * maxMoveRatio, self:getHeight() * maxMoveRatio
+	
+	-- initialization for Pinch-Zoom
+	local parent = self:getParent()
+	self._zoom = {
+		min = minZoom,
+		leftLimit = halfWidth,
+		rightLimit = -halfWidth,
+		upLimit = halfHeight,
+		downLimit = -halfHeight,
+		touchPoints = { {}, {} },
+		idTouchExist = { false, false },
+		oriDeltaTouch = nil,
+		oriScale = nil,
+		-- for animated translation
+		targetX = self:getX(),
+		targetY = self:getY(),
+		-- center of zoom: if one touch, its coordinate, if 2 touch, the middle of the 2 fingers
+		x0 = nil,
+		y0 = nil,
+		-- if pinch-zoom then capture
+		capture = false
+	};
+	self.zoomTo = zoomTo
 end
