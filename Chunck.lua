@@ -1,105 +1,20 @@
-CHUNCK_SIZE = 128
+-- a chunck is a part of a map
+-- it's a square of CHUNCK_SIZExCHUNCK_SIZE cells
 
-local function yieldMe()
-	if coroutine.running() then
-		-- print('yield')
-		coroutine.yield()
-	end
-end
-
-local function buildSquareMesh()
-	local mesh = Mesh.new(false)
-	
-	-- build vertices
-	local i = 1
-	for y = 0, CHUNCK_SIZE do
-		for x = 0, CHUNCK_SIZE do
-			mesh:setVertex(i, x, y)
-			i = i + 1
-		end
-	end
-
-	-- build triangles
-	local i, j = 1, 1
-	for y = 0, CHUNCK_SIZE - 1 do
-		for x = 0, CHUNCK_SIZE - 1 do
-			-- 2 triangles filling a square
-
-			if (x + y) % 2 == 0 then
-				mesh:setIndices(j, i,    j + 1, i + 1,     j + 2, i + CHUNCK_SIZE + 1,    j + 3, i + 1,     j + 4, i + CHUNCK_SIZE + 1,     j + 5, i + CHUNCK_SIZE + 2)
-			else
-				mesh:setIndices(j, i,    j + 1, i + 1,     j + 2, i + CHUNCK_SIZE + 2,    j + 3, i,     j + 4, i + CHUNCK_SIZE + 1,     j + 5, i + CHUNCK_SIZE + 2)
-			end
-			j = j + 6
-			i = i + 1
-		end
-		i = i + 1
-	end
-
-	return mesh
-end
+-- Chunck Class
+Chunck = Core.class()
+Chunck.newIndice = 0
 
 
-local function build3dSquareMesh()
-	local mesh = Mesh.new(true)
-	
-	-- build vertices
-	local i = 1
-	for y = 0, CHUNCK_SIZE - 1, 2 do
-		for x = 0, CHUNCK_SIZE - 1, 2 do
-			mesh:setVertex(i, x * 10, y * 10, 0)
-			i = i + 1
-			mesh:setVertex(i, x * 10 + 20, y * 20, 0)
-			i = i + 1
-			mesh:setVertex(i, x * 10, y * 10 + 20, 0)
-			i = i + 1
-			mesh:setVertex(i, x * 10 + 20, y * 10 + 20, 0)
-			i = i + 1
-			mesh:setVertex(i, x * 10 + 10, y * 10 + 10, 0)
-			i = i + 1
-		end
-	end
-	print(i)
 
-	local i, j = 1, 1
-	for y = 0, CHUNCK_SIZE - 1, 2 do
-		for x = 0, CHUNCK_SIZE - 1, 2 do
-			-- 2 triangles filling a square
-			mesh:setIndices(j, i,        j + 1, i + 1,     j + 2, i + 3,    j + 3, i + 3,     j + 4, i + 2,     j + 5, i)
-			j = j + 6
-			mesh:setIndices(j, i,        j + 1, i + 4,     j + 2, i + 3,    j + 3, i + 1,     j + 4, i + 4,     j + 5, i + 2)
-			j = j + 6
-			if x > 0 then
-				local b = i - 5 -- le carré d'avant en x
-				-- relier b1  0 2 b3
-				mesh:setIndices(j, b + 1,    j + 1, i,     j + 2, i + 2,    j + 3, i + 2,     j + 4, b + 3,     j + 5, b + 1)
-				j = j + 6
-			end
-			if y > 0 then
-				local b = i - 5 * CHUNCK_SIZE / 2 -- le carré d'avant en y
-				-- relier b3 1 0 b2 
-				mesh:setIndices(j, b + 3,    j + 1, i + 1,     j + 2, i)
-				j = j + 3
-				mesh:setIndices(j, i,        j + 1, b + 2,     j + 2, b + 3)
-				j = j + 3
-			end
-			i = i + 5
-		end
-	end
-	return mesh
-end
-
-local sharedMesh = buildSquareMesh()
-local shared3dMesh = build3dSquareMesh()
-
-local backgroundMesh
-local function renderBackground()
-	local mesh = sharedMesh
+-- render a chunck backside mesh
+local function renderBackside()
+	local mesh = chunckMesh
 	local i, j = 1, 1
 	local map = {}
 	for i = 1, CHUNCK_SIZE * CHUNCK_SIZE do
 		local color = math.ceil((i * i) >> 10 + (i * i) >> 6) % 16
-		map[i] = 0xFFFAA - (color << 16 + color << 20)
+		map[i] = 0xFFFFAA - (color << 10 + color << 20)
 		-- print(map[i])
 	end
 	i = 1
@@ -121,82 +36,18 @@ local function renderBackground()
 	end
 	-- print("Chunck:get2DMapMesh", self.name, i, "done")
 	local rt= RenderTarget.new(CHUNCK_SIZE, CHUNCK_SIZE)
-	rt:draw(Pixel.new(0xFFFFFF, CHUNCK_SIZE, CHUNCK_SIZE))
+	rt:draw(Pixel.new(0xAAFFAA, CHUNCK_SIZE, CHUNCK_SIZE))
 	local sprite = Sprite.new()
-	sprite:addChild(mesh)
 	sprite:setScale((CHUNCK_SIZE - 10) / CHUNCK_SIZE)
+	sprite:addChild(mesh)
 	rt:draw(sprite, 5, 5)
 	return rt
 end
 
-local backgroundStuff = renderBackground()
-
--- generate a noise map layer
--- t: noise square array, l : square side length
--- (x0,y0)-(x3,y3) recursive computed square
---  z0, z1, z2 and z3 : 4 levels at square corners
-function generateNoise(t, l, x0, y0, x3, y3, z0, z1, z2, z3)
-	--[[
-    (x0,y0)
-	  z0    p1    z1
-	  
-         (x5,y5)
-	  p2    p5    p3
-	  
-	  
-	  z2    p4    z3
-                (x3,y3)
-	]]--
-	
-   local c = x3 - x0
-   if c <= 2 then
-		_ = x0 % 32 == 0 and y0 % 128 == 0 and yieldMe()
-		local zz1 = math.floor((2 * z1 + z0) / 3)
-	    local zz2 = math.floor((2 * z2 + z0) / 3)
-	    local zz3 = math.floor((2 * z3 + z1 + z2) / 4)
-		x3 = x3 - 1
-		y3 = y3 - 1
-		t[x0 + y0 * l] = z0
-		t[x3 + y0 * l] = zz1
-		t[x0 + y3 * l] = zz2
-		t[x3 + y3 * l] = zz3
-	    if x3 < l - 1 then
-			t[x3 + 1 + y0 * l] = z1
-			t[x3 + 1 + y3 * l] = z3
-		end
-        if y3 < l - 1 then
-			t[x0 + y3 * l + l] = z2
-			t[x3 + y3 * l + l] = z3
-		end
-		
-		local z, zb = (z0 < z1 and z0 or z1), (z2 < z3 and z2 or z3)
-		return z < zb and z or zb
-   end
-   
-   local x5, y5 = math.floor((x3 + x0) / 2), math.floor((y3 + y0) / 2)
-   local tp1 = t[x5 + y0 * l]
-   local tp2 = t[x0 + y5 * l]
-   local tp3 = x3 == l and t[l - 1 + y5 * l]
-   local tp4 = y3 == l and t[x5 + (l - 1) * l]
-   local p5 = math.floor((z0 + z1 + z2 + z3) / 4) + math.random(-c, c)
-   local p1 = tp1 or (math.floor((z0 + z1) / 2) + math.random(-c, c))
-   local p2 = tp2 or (math.floor((z0 + z2) / 2) + math.random(-c, c))
-   local p3 = tp3 or (math.floor((z1 + z3) / 2) + math.random(-c, c))
-   local p4 = tp4 or (math.floor((z2 + z3) / 2) + math.random(-c, c))
-   
-   local m0 = generateNoise(t, l, x0, y0, x5, y5,  z0, p1, p2, p5)
-   local m1 = generateNoise(t, l, x5, y0, x3, y5,  p1, z1, p5, p3)
-   local m2 = generateNoise(t, l, x0, y5, x5, y3,  p2, p5, z2, p4)
-   local m3 = generateNoise(t, l, x5, y5, x3, y3,  p5, p3, p4, z3)
-   local z, zb = (m0 < m1 and m0 or m1), (m2 < m3 and m2 or m3)
-   return z < zb and z or zb
-end
+-- chunck backside Sprite
+local backside = renderBackside()
 
 
--- A Chunck
-Chunck = Core.class()
-
-Chunck.newIndice = 0
 
 function Chunck:init(...)
 	Chunck.newIndice = Chunck.newIndice + 1
@@ -227,7 +78,7 @@ function Chunck:getBack()
 		return self.backSprite
 	end
 	
-	self.backSprite = Bitmap.new(backgroundStuff)
+	self.backSprite = Bitmap.new(backside)
 	return self.backSprite
 end
 
@@ -369,7 +220,7 @@ function Chunck:get2DMapMesh()
 	-- print("Chunck:get2DMapMesh", self.name)
 
 	local options = self.options
-	local mesh = sharedMesh	
+	local mesh = chunckMesh
 	local map = self.map
 	local i, j = 1, 1
 	for y = 0, CHUNCK_SIZE - 1 do

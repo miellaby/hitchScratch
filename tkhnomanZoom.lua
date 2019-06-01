@@ -1,4 +1,9 @@
+-- zoom feature
 --  http://giderosmobile.com/forum/discussion/2269/pinch-to-zoom
+-- see attachZoom
+
+-- the current scene with zoom abilities
+local currentZoomable
 
 --Function to get range between touch/coord
 local function getDelta(point1, point2)
@@ -192,26 +197,25 @@ function handleZoom(self, event)
 	return true
 end
  
-local currentZoomable
-function attachZoom(self, minZoom, maxMoveRatio)
+function attachZoom(scene, minZoom, maxMoveRatio)
 	if currentZoomable then
-		currentZoomable:removeEventListener(Event.TOUCHES_BEGIN, handleZoom, self)
-		currentZoomable:removeEventListener(Event.TOUCHES_MOVE, handleZoom, self)
-		currentZoomable:removeEventListener(Event.TOUCHES_END, handleZoom, self)
-		currentZoomable:removeEventListener(Event.MOUSE_WHEEL, handleZoom, self)
-		currentZoomable:removeEventListener(Event.ENTER_FRAME, goToTarget, self)
+		currentZoomable:removeEventListener(Event.TOUCHES_BEGIN, handleZoom, scene)
+		currentZoomable:removeEventListener(Event.TOUCHES_MOVE, handleZoom, scene)
+		currentZoomable:removeEventListener(Event.TOUCHES_END, handleZoom, scene)
+		currentZoomable:removeEventListener(Event.MOUSE_WHEEL, handleZoom, scene)
+		currentZoomable:removeEventListener(Event.ENTER_FRAME, goToTarget, scene)
 	end
-	currentZoomable = self
-	self:addEventListener(Event.TOUCHES_BEGIN, handleZoom, self)
-	self:addEventListener(Event.TOUCHES_MOVE, handleZoom, self)
-	self:addEventListener(Event.TOUCHES_END, handleZoom, self)
-	self:addEventListener(Event.MOUSE_WHEEL, handleZoom, self)
+	currentZoomable = scene
+	scene:addEventListener(Event.TOUCHES_BEGIN, handleZoom, scene)
+	scene:addEventListener(Event.TOUCHES_MOVE, handleZoom, scene)
+	scene:addEventListener(Event.TOUCHES_END, handleZoom, scene)
+	scene:addEventListener(Event.MOUSE_WHEEL, handleZoom, scene)
 	
-	local halfWidth, halfHeight = self:getWidth() * maxMoveRatio, self:getHeight() * maxMoveRatio
+	local halfWidth, halfHeight = scene:getWidth() * maxMoveRatio, scene:getHeight() * maxMoveRatio
 	
 	-- initialization for Pinch-Zoom
-	local parent = self:getParent()
-	self._zoom = {
+	local parent = scene:getParent()
+	scene._zoom = {
 		min = minZoom,
 		leftLimit = halfWidth,
 		rightLimit = -halfWidth,
@@ -222,13 +226,13 @@ function attachZoom(self, minZoom, maxMoveRatio)
 		oriDeltaTouch = nil,
 		oriScale = nil,
 		-- for animated translation
-		targetX = self:getX(),
-		targetY = self:getY(),
+		targetX = scene:getX(),
+		targetY = scene:getY(),
 		-- center of zoom: if one touch, its coordinate, if 2 touch, the middle of the 2 fingers
 		x0 = nil,
 		y0 = nil,
 		-- if pinch-zoom then capture
 		capture = false
 	};
-	self.zoomTo = zoomTo
+	scene.zoomTo = zoomTo
 end

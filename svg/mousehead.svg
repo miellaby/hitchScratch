@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sb="http://simplector.lyoshka.net/base/2.0"
+   xmlns:sp="http://simplector.lyoshka.net/pro/2.0"
+   width="500.0px"
+   height="500.0px"
+   viewBox="0 0 500.0 500.0"
+   sb:fontSize="Custom"
+   sb:pageOrientation="Portrait"
+   version="1.1"
+   sb:version="2.0.27"
+   >
+   <desc>Created in Simplector Pro</desc>
+   <path
+      id="102"
+      transform="matrix(1.0,0.0,0.0,1.0,8.026398,69.27261)"
+      fill="rgb(146,146,146)"
+      fill-opacity="1.0"
+      stroke-width="10.0px"
+      stroke-linecap="butt"
+      stroke-linejoin="miter"
+      stroke-miterlimit="2.0"
+      stroke="rgb(109,109,109)"
+      stroke-opacity="1.0"
+      d="
+      M 288.14227 337.0534 C 332.27795 350.07507 398.35138 334.37192 410.64914 313.51245 
+      C 422.9469 292.65298 408.04483 232.68802 384.9055 205.136 C 361.76614 177.58398 326.98022 150.7226 296.60962 139.1693 
+      C 266.239 127.616 325.4839 143.81798 354.6801 114.58922 C 383.87634 85.36046 372.6681 56.66697 347.30603 36.240208 
+      C 321.94397 15.813446 259.43225 -0.24585342 233.62318 22.106659 C 207.8141 44.45917 212.60428 114.48723 244.06972 125.65025 
+      C 275.53516 136.81328 229.0687 130.8882 210.27757 148.58682 C 191.48645 166.28545 189.03604 194.68788 188.15001 181.8772 
+      C 187.26398 169.06651 192.58624 139.26338 176.45557 113.91517 C 160.32489 88.566956 148.97551 83.710495 123.627304 80.48436 
+      C 98.2791 77.258224 62.149475 76.13446 46.633297 106.13774 C 31.117119 136.14102 28.512741 179.56895 61.56259 200.49751 
+      C 94.61244 221.42607 141.02066 219.63525 151.27989 216.59657 C 161.53912 213.55789 159.78477 232.39331 178.3687 260.98416 
+      C 196.95262 289.575 244.00659 324.03174 288.14227 337.0534 
+      "
+
+      sb:layerName="BLineFigure-102"
+      sb:layerVisible="true"
+      sb:layerLocked="false"
+      sb:pathType="bline"
+      >
+   </path>
+   <path
+      id="105"
+      transform="matrix(2.417044,0.0,0.0,2.417044,177.95135,154.08984)"
+      fill="rgb(0,0,0)"
+      fill-opacity="0.0"
+      stroke-width="4.0px"
+      stroke-linecap="round"
+      stroke-linejoin="miter"
+      stroke-miterlimit="1.0"
+      stroke="rgb(73,73,73)"
+      stroke-opacity="1.0"
+      d="
+      M 46.442154 33.10401 
+      "
+
+      sb:layerName="1"
+      sb:layerVisible="true"
+      sb:layerLocked="false"
+      sb:pathType="path"
+      >
+   </path>
+   <ellipse
+      id="113"
+      transform="matrix(1.0600804,0.49432364,-0.3055355,0.65522295,97.1076,-66.88365)"
+      fill="rgb(73,73,73)"
+      fill-opacity="1.0"
+      stroke-width="8.0px"
+      stroke-linecap="butt"
+      stroke-linejoin="miter"
+      stroke-miterlimit="2.0"
+      stroke="rgb(36,36,36)"
+      stroke-opacity="1.0"
+      cx="413.14026"
+      cy="385.21387"
+      rx="24.946732"
+      ry="24.946732"
+
+      sb:layerName="OvalFigure-113"
+      sb:layerVisible="true"
+      sb:layerLocked="false"
+      >
+   </ellipse>
+   <sp:keyframes
+
+      sp:step="100"
+      sp:dur="10000"
+      >
+      <sp:keyframe
+
+         sp:time="0"
+         >
+      </sp:keyframe>
+   </sp:keyframes>
+</svg>

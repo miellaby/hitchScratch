@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sb="http://simplector.lyoshka.net/base/2.0"
+   xmlns:sp="http://simplector.lyoshka.net/pro/2.0"
+   width="500.0px"
+   height="500.0px"
+   viewBox="0 0 500.0 500.0"
+   sb:fontSize="Custom"
+   sb:pageOrientation="Portrait"
+   version="1.1"
+   sb:version="2.0.27"
+   >
+   <desc>Created in Simplector Pro</desc>
+   <path
+      id="1"
+      transform="matrix(4.6323886,0.0,0.0,4.6323886,-9.864037,103.17061)"
+      fill="rgb(255,255,255)"
+      fill-opacity="1.0"
+      stroke-width="4.0"
+      stroke-linecap="round"
+      stroke-linejoin="miter"
+      stroke-miterlimit="1.0"
+      stroke="rgb(0,0,0)"
+      stroke-opacity="1.0"
+      d="
+      M 18.285276 64.14033 C 15.501457 63.453796 31.602055 36.583336 43.53528 38.265324 
+      C 57.477165 40.230434 56.7533 80.74552 52.03528 79.64033 C 45.232216 78.046715 42.22619 75.128716 36.41028 71.64033 
+      C 31.775433 68.860344 24.135845 65.58316 18.285276 64.14033 
+      "
+
+      sb:layerName="BLineFigure-1"
+      sb:layerVisible="true"
+      sb:layerLocked="false"
+      sb:pathType="bline"
+      >
+   </path>
+   <path
+      id="2"
+      transform="matrix(4.6323886,0.0,0.0,4.6323886,-9.864037,120.9397)"
+      fill="rgb(166,42,42)"
+      fill-opacity="1.0"
+      stroke-width="4.0"
+      stroke-linecap="round"
+      stroke-linejoin="miter"
+      stroke-miterlimit="1.0"
+      stroke="rgb(0,0,0)"
+      stroke-opacity="1.0"
+      d="
+      M 16.3542 65.00248 C 15.024097 60.947746 18.928339 56.486153 21.979202 53.50248 C 24.803505 50.740376 28.410416 44.856686 32.604202 48.25248 
+      C 34.55433 49.831535 36.737827 54.181957 36.104202 57.37748 C 35.857327 58.622536 34.595554 59.608215 34.604202 60.87748 
+      C 34.620495 63.26845 37.588337 56.155388 39.979202 56.12748 C 42.75415 56.095085 44.44833 59.800915 45.479202 62.37748 
+      C 46.993973 66.1635 47.281487 72.29291 43.854202 74.50248 C 40.120373 76.90968 33.84595 73.198 29.604202 71.87748 
+      C 23.886435 70.09745 17.641176 68.92574 16.3542 65.00248 
+      "
+
+      sb:layerName="BLineFigure-2"
+      sb:layerVisible="true"
+      sb:layerLocked="false"
+      sb:pathType="bline"
+      >
+   </path>
+   <sp:keyframes
+
+      sp:step="100"
+      sp:dur="10000"
+      >
+      <sp:keyframe
+
+         sp:time="0"
+         >
+      </sp:keyframe>
+   </sp:keyframes>
+</svg>

@@ -1,10 +1,10 @@
-local dirt = Texture.new("dirtf.png", false, {wrap = Texture.REPEAT});
+local dirt = Texture.new("rsc/dirtf.png", false, {wrap = Texture.REPEAT});
 local function face(l,g,z,stuff,rx,ry)
 	c=Sprite.new()
 	sb=NdShape.new()
 	c:addChild(sb)
 	if stuff then
-		sb:setFillStyle(Shape.SOLID, 0xFFFFFF,1.0)
+		sb:setFillStyle(Shape.SOLID, 0xAAFFAA,1.0)
 	else
 		sb:setFillStyle(Shape.TEXTURE, dirt, Matrix.new(1, 0, 0, 1));
 	end
@@ -17,7 +17,7 @@ local function face(l,g,z,stuff,rx,ry)
 	if stuff then
 		s=NdShape.new()
 		sb:addChild(s)
-		s:setLineStyle(4,0x800000,1.0)
+		s:setLineStyle(4,0x004000,1.0)
 		s:beginPath()
 		s:rect(0,0,l,g)
 		s:stroke()
@@ -42,7 +42,7 @@ function FlippingCard:init(what, is3d, chunck, flipped)
 	self:addChild(face(CHUNCK_SIZE,CHUNCK_SIZE,25, chunck:getMap(),0,0))
 	self:addChild(face(CHUNCK_SIZE,50,CHUNCK_SIZE/2,nil,90,90))
 	self:addChild(face(CHUNCK_SIZE,50,CHUNCK_SIZE/2,nil,90,-90))
-	self:setZ(0)
+	self:setZ(-20)
 	_ = flipped and self:setRotationX(180)
 	chunck:getBack():setPosition(0,0)
 	chunck:getMap():setPosition(0,0)

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sb="http://simplector.lyoshka.net/base/2.0"
+   xmlns:sp="http://simplector.lyoshka.net/pro/2.0"
+   width="150.0px"
+   height="150.0px"
+   viewBox="0 0 150.0 150.0"
+   sb:fontSize="Custom"
+   sb:pageOrientation="Portrait"
+   version="1.1"
+   sb:version="2.0.27"
+   >
+   <desc>Created in Simplector Pro</desc>
+   <g
+      id="168"
+
+      sb:layerName="eyes"
+      sb:layerVisible="true"
+      sb:layerLocked="false"
+      >
+      <path
+         id="165"
+         transform="matrix(2.417044,0.0,0.0,2.417044,-77.83357,-26.101906)"
+         fill="rgb(255,255,254)"
+         fill-opacity="1.0"
+         stroke-width="4.0px"
+         stroke-linecap="round"
+         stroke-linejoin="miter"
+         stroke-miterlimit="1.0"
+         stroke="rgb(182,182,182)"
+         stroke-opacity="1.0"
+         d="
+         M 63.694366 59.26854 C 63.694366 59.26854 66.452156 64.79315 70.44835 66.60478 C 74.922066 68.6329 78.9823 67.815834 81.58527 66.25123 
+         C 85.836136 63.6961 86.88985 57.59076 87.59567 51.048424 C 88.00926 47.214825 87.59981 40.976795 86.88858 36.464355 
+         C 86.15212 31.791826 84.781334 26.115221 82.73433 22.49899 C 80.51415 18.576832 77.57637 16.040318 73.1 15.516312 
+         C 70.11977 15.167444 66.51786 16.201698 64.614716 18.521515 C 60.935703 23.006016 60.54885 32.310097 60.54885 32.310097 
+         M 60.79742 33.122192 C 60.79742 33.122192 54.77556 25.640789 47.53917 27.46534 C 40.908028 29.137285 37.96302 35.20778 39.40744 47.5295 
+         C 40.87455 60.044804 47.21834 67.66919 55.670895 67.59365 C 61.622982 67.54046 63.802628 59.28515 63.802628 59.28515 
+         
+         "
+
+         sb:layerName="copy of 104"
+         sb:layerVisible="true"
+         sb:layerLocked="false"
+         sb:pathType="path"
+         >
+      </path>
+      <path
+         id="166"
+         transform="matrix(2.417044,0.0,0.0,2.417044,-77.83357,-26.101906)"
+         fill="rgb(0,0,255)"
+         fill-opacity="1.0"
+         stroke-width="4.0px"
+         stroke-linecap="round"
+         stroke-linejoin="miter"
+         stroke-miterlimit="1.0"
+         stroke="rgb(50,50,113)"
+         stroke-opacity="1.0"
+         d="
+         M 56.562325 38.72342 C 56.039104 37.352013 54.58293 35.968815 53.115177 35.98338 
+         C 51.17856 36.002598 50.262043 38.31133 49.61746 40.13763 C 48.74468 42.61048 49.086143 46.201088 49.84481 48.7113 
+         C 50.72106 51.610577 52.16258 55.12016 55.272346 55.605595 C 58.31424 56.080437 60.022137 53.21613 60.009468 51.186176 
+         C 59.998238 49.38681 60.834175 47.22628 59.744305 45.794487 C 58.56261 44.24206 54.88458 46.072617 54.08745 44.291885 
+         C 53.078983 42.03905 57.28637 40.621216 56.562325 38.72342 Z 
+         "
+
+         sb:layerName="copy of 106"
+         sb:layerVisible="true"
+         sb:layerLocked="false"
+         sb:pathType="path"
+         >
+      </path>
+      <path
+         id="167"
+         transform="matrix(2.417044,0.0,0.0,2.417044,-80.20973,-29.26072)"
+         fill="rgb(0,0,255)"
+         fill-opacity="1.0"
+         stroke-width="4.0px"
+         stroke-linecap="round"
+         stroke-linejoin="miter"
+         stroke-miterlimit="1.0"
+         stroke="rgb(50,50,107)"
+         stroke-opacity="1.0"
+         d="
+         M 66.34157 30.183167 C 64.63976 30.757229 63.596336 32.63623 62.80603 34.249027 C 61.509315 36.895264 60.795525 40.17101 61.215042 43.087864 
+         C 61.703163 46.48178 63.41864 50.540066 65.988014 52.810585 C 67.5796 54.21705 69.31863 55.998363 71.82165 55.373844 
+         C 74.83822 54.62119 75.99776 51.483147 76.50623 49.098274 C 77.249214 45.61355 76.788055 39.707832 73.58941 38.138115 
+         C 72.36243 37.53598 70.49158 38.572655 69.523544 37.607788 C 68.02966 36.118793 73.0987 33.75884 72.1752 31.862545 
+         C 71.28922 30.043299 68.258934 29.536388 66.34157 30.183167 Z 
+         "
+
+         sb:layerName="copy of 107"
+         sb:layerVisible="true"
+         sb:layerLocked="false"
+         sb:pathType="path"
+         >
+      </path>
+   </g>
+   <sp:keyframes
+
+      sp:step="100"
+      sp:dur="10000"
+      >
+      <sp:keyframe
+
+         sp:time="0"
+         >
+      </sp:keyframe>
+   </sp:keyframes>
+</svg>

@@ -1,0 +1,3 @@
+CHUNCK_SIZE = 128 -- need to be power of 2
+CHUNCK_MARGIN = 14
+OVERVIEW_ANGLE = 40

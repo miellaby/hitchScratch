@@ -1,7 +1,5 @@
 World = Core.class(Sprite)
-local CHUNCK_MARGIN = 14
-local OVERVIEW_ANGLE = 40
-
+	
 function World:init(...)
 	--  print(self)
 	self.chunckIndex = {} -- index x-y des chuncks
@@ -32,9 +30,10 @@ function World:init(...)
 	
 	self:setRotationX(OVERVIEW_ANGLE)
 	-- local m = Matrix.new()
-	-- m:setRotationX(45)
-	-- self.background:setMatrix(m)
-	-- self.fullMap:setMatrix(m)
+	-- m:setRotationX(OVERVIEW_ANGLE)
+	-- self:setMatrix(m)
+	
+
 end
 
 function World:setNextChunck()
@@ -131,6 +130,7 @@ end
 
 function World:doFocusing()
 	local p = self:getParent()
+	if not p then return end
 	local sc = p:getScaleX()
 	local stillWork = false;
 	
@@ -169,15 +169,21 @@ end
 function World:unfocus(card)
 	self.focusCard = nil
 	self:addEventListener(Event.ENTER_FRAME, self.doFocusing, self)
+	overflyButton:removeFromParent();
 end
 
 function World:focus(card)
 	self.focusCard = card
+	stage:addChild(overflyButton);
 	self:addEventListener(Event.ENTER_FRAME, self.doFocusing, self)
 end
 
 
 function World:touchCard(event)
+	if not self:isVisible() then
+		return
+	end
+	
 	local touch = event.touch
 	for _, card in pairs(self.cards) do
 		if card:hitTestPoint(touch.x, touch.y, true) then
@@ -195,12 +201,3 @@ function World:touchCard(event)
 		end
 	end
 end
-
-
-world = World.new()
-
-stage:addEventListener(Event.TOUCHES_END, World.touchCard, world)
-
-stage:addEventListener(Event.ENTER_FRAME, function()
-	world:resumeGeneration()
-end)
