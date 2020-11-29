@@ -17,11 +17,19 @@ local overflyButtonModel = {
 
 overflyButton = SvgSprite.new(overflyButtonModel);
 overflyButton:setPosition(750,450)
-overflyButton:setAlpha(0.7)	
-mixinState(overflyButton)
-overflyButton:addEventListener(Event.TOUCHES_BEGIN, function(event)
+overflyButton:setAnchorPoint(0.3,0)
+overflyButton:setScale(0.7)
+
+overflyButton:setAlpha(0.4)	
+overflyButton:addEventListener(Event.TOUCHES_END, function(event)
+	-- print("overflyButtonListener")
 	local touch = event.touch
 	if overflyButton:hitTestPoint(touch.x, touch.y, true) then
-		overflyButton:setRotation(40)
+		if game.state == game.State.OVERFLY then
+			game:setState(game.State.WORLD)
+		else
+			game:setState(game.State.OVERFLY)
+		end
+		event:stopPropagation()
 	end
 end)

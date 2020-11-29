@@ -9,7 +9,7 @@ Chunck.newIndice = 0
 
 -- render a chunck backside mesh
 local function renderBackside()
-	local mesh = chunckMesh
+	local mesh = chunckMeshes.map2d
 	local i, j = 1, 1
 	local map = {}
 	for i = 1, CHUNCK_SIZE * CHUNCK_SIZE do
@@ -169,12 +169,16 @@ function Chunck:generate()
 			elseif level > 50 and level < 70 then
 				-- water
 				color = 0x0000FF + (math.abs(level - 60) << 11)
+				color = color + 0x223344
+					
 			elseif level > 40 and level < 80 then
 				-- sand
 				local v = 21 - (math.abs(level - 60) - 20)
 				--
 				color = (v << 11) | 0xFF0000
 				-- color = (0xFF0000 - (v << 20)) | (0x00FF00 - (v << 12))
+				color = color - 0x220000 + 0x000066
+				
 			elseif level > math.random(120, 200) and level < math.random(0, 150) then
 				-- flower
 				color = 0xFF2200
@@ -195,6 +199,8 @@ function Chunck:generate()
 				elseif green >= 0 then
 					-- green
 					color = 0x00FF00 - (math.floor(green ) << 8)
+					color = color + 0x220022
+					
 				else
 					-- too much green
 					if green < -0x33 then
@@ -220,7 +226,7 @@ function Chunck:get2DMapMesh()
 	-- print("Chunck:get2DMapMesh", self.name)
 
 	local options = self.options
-	local mesh = chunckMesh
+	local mesh = chunckMeshes.map2d
 	local map = self.map
 	local i, j = 1, 1
 	for y = 0, CHUNCK_SIZE - 1 do
@@ -244,14 +250,79 @@ function Chunck:get2DMapMesh()
 	return mesh
 end
 
+function Chunck:getElevation(x, y)
+	local layer0, layer1 = self.layers[1], self.layers[2]
+	local green = (layer0[y * CHUNCK_SIZE + x] - 64)
+	local level = (layer1[y * CHUNCK_SIZE + x] - 20)
+	local correction = 0
+	local fluff = 0
+
+	if level < 30 then
+		-- en dessous de la rivière = en dessus en fait
+		correction = (level - 30) * 2
+	elseif level < 90 then
+		-- près de la rivière : annulation du niveau
+		correction = math.min(math.floor((level - 30)), math.floor((90 - level)))
+		if level > 50 and level < 70 then
+			-- in the river
+			correction = correction * 1.2
+		elseif level > 40 and level < 80 then
+			-- sand
+		end
+	elseif level > 200 then
+		-- renforcement montagne
+		correction = (200 - level)
+	else
+		-- entre 90 et 200 rien
+	end
+	-- if level > 200 and green > 200 then
+	--	correction = (green - 190)
+	-- end
+	
+	if green < 0 then
+		correction = correction + (-green) * math.log(-green) -- + 20 + math.max(0, math.abs(level - 60) - 40) * 0.01 * (-green) * math.log(-green) 
+		if  green > -0x33 and level < 200  and (level < 50 or level > 70) then fluff = -green end
+	elseif green < 200 and level < 200 and (level < 40 or level > 80) then
+		if color ~= 0xFFFFFF and color ~= 0xFF2200 then
+			-- tree
+			correction = correction - level / 20
+			fluff = green / 5 -- (200 - green) / 10
+		else
+			correction = -20
+		end
+	end
+
+	local z = 250 + level * 2 - correction * 2
+
+	-- exagération des trous
+	if z < 0 then
+		z = 50 * z / (50 + z * z) 
+	end
+	
+	-- effondrement près des bords
+	if true then
+		local fallStart = 5
+		if x < 1 or y < 1 or x >= CHUNCK_SIZE - 2 or y >= CHUNCK_SIZE - 2 then
+			z = - 4000
+		elseif x < fallStart or y < fallStart or x >= CHUNCK_SIZE - fallStart or y >= CHUNCK_SIZE - fallStart then
+			local fallRatio = 10
+			local fall = math.max(fallStart - x, fallStart - y, x - CHUNCK_SIZE + fallStart + 1, y - CHUNCK_SIZE + fallStart + 1)
+			z = z - fallRatio * math.exp(fall / 3)
+		end
+	end
+
+	return z, fluff
+end
+
+
+
 -- build 3D map from 2 noise layers
 function Chunck:get3DMapMesh()
 	-- print("Chunck:get2DMapMesh", self.name)
 
 	local options = self.options
-	local mesh = shared3dMesh
+	local mesh = chunckMeshes.map3d
 	local map = self.map
-	local layer0, layer1 = self.layers[1], self.layers[2]
 	while mesh:getNumChildren() > 0 do
 		mesh:removeChildAt(1)
 	end
@@ -260,73 +331,21 @@ function Chunck:get3DMapMesh()
         local color
 		for x = 0, CHUNCK_SIZE - 1, 2 do
 			color = map[1 + x + y * CHUNCK_SIZE]
-			local green = (layer0[y * CHUNCK_SIZE + x] - 64)
-			local level = (layer1[y * CHUNCK_SIZE + x] - 20)
-			local correction = 0
-			local fluff = 0
-			if level < 30 then
-				-- en dessous de la rivière = en dessus en fait
-				correction = (level - 30) * 2
-			elseif level < 90 then
-				-- près de la rivière : annulation du niveau
-				correction = math.min(math.floor((level - 30)), math.floor((90 - level)))
-				if level > 50 and level < 70 then
-					-- in the river
-					color = color + 0x223344
-					correction = correction * 1.2
-				elseif level > 40 and level < 80 then
-					-- sand
-					color = color - 0x220000 + 0x000066
-				end
-			elseif level > 200 then
-				-- renforcement montagne
-				-- color = color + 0x111122
-				correction = (200 - level)
-			else
-				-- entre 90 et 200 rien
-			end
-			-- if level > 200 and green > 200 then
-			--	correction = (green - 190)
-			-- end
+			local z, fluff = self:getElevation(x, y)
 			
-			if green < 0 then
-				correction = correction + (-green) * math.log(-green) -- + 20 + math.max(0, math.abs(level - 60) - 40) * 0.01 * (-green) * math.log(-green) 
-				if  green > -0x33 and level < 200  and (level < 50 or level > 70) then fluff = -green end
-			elseif green < 200 and level < 200 and (level < 40 or level > 80) then
-				if color ~= 0xFFFFFF and color ~= 0xFF2200 then
-					-- tree
-					color = color + 0x220022
-					correction = correction - level / 20
-					fluff = green / 5 -- (200 - green) / 10
-				else
-					correction = -20
-				end
-			end
-		
-			local z = 250 + level * 2 - correction * 2
-			if z < 0 then
-				z = 50 * z / (50 + z * z) 
-			elseif x < 10 or y < 10 or x > CHUNCK_SIZE - 11 or y > CHUNCK_SIZE - 11 then
-				local fall = math.max(10 - x, 10 - y, x - CHUNCK_SIZE + 11, y - CHUNCK_SIZE + 11)
-				z = z - 20 * math.exp(fall / 3)
-				-- if z < 0 then z = z * 10 / (10 + z * z)  end
-			end
-		
-			-- _ = math.random(50) == 1 and print(z)
-			
-			mesh:setVertex(j, x * 10, y * 10, z)
+			mesh:setVertex(j, x * pixelSize, y * pixelSize, z * pixelSize / 10)
 			mesh:setColors(j, color, 1)
 			j = j + 1
-			mesh:setVertex(j, x * 10 + 20, y * 10, z)
+			mesh:setVertex(j, x * pixelSize + 2 * pixelSize, y * pixelSize, z * pixelSize / 10)
 			mesh:setColors(j, color, 1)
 			j = j + 1
-			mesh:setVertex(j, x * 10, y * 10 + 20, z)
+			mesh:setVertex(j, x * pixelSize, y * pixelSize + 2 * pixelSize, z * pixelSize / 10)
 			mesh:setColors(j, color, 1)
 			j = j + 1
-			mesh:setVertex(j, x * 10 + 20, y * 10 + 20, z)
+			mesh:setVertex(j, x * pixelSize + 2 * pixelSize, y * pixelSize + 2 * pixelSize, z * pixelSize / 10)
 			mesh:setColors(j, color, 1)
 			j = j + 1
-			mesh:setVertex(j, x * 10 + 7 + math.random(5), y * 10 + 7 + math.random(5), z + fluff)
+			mesh:setVertex(j, x * pixelSize + pixelSize * ((7 + math.random(5)) / 10) , y * pixelSize + pixelSize * ((7 + math.random(5)) / 10), (z + fluff) * pixelSize / 10)
 			mesh:setColors(j, color, 1)
 			j = j + 1
 			-- i = i + 2

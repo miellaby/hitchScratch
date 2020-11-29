@@ -1,11 +1,12 @@
 <project>
- <properties app_icon="" splash_h_image="" architecture="0" version="1.0" html5_mem="256" mouseTouchOrder="0" build_number="1" html5_wasm="0" logicalWidth="600" packageName="com.yourdomain.yourapp" windowHeight="0" version_code="1" win_domain="giderosmobile.com" html5_pack="0" osx_domain="giderosmobile.com" logicalHeight="800" osx_category="5" app_name="" html5_fbinstant="0" orientation="1" vsync="1" disableSplash="0" splash_v_image="" touchToMouse="1" splashScaleMode="0" html5_host="" retinaDisplay="0" html5_fbload="100" windowWidth="0" iosDevice="0" exportMode="0" ios_bundle="com.yourdomain." fps="60" win_org="GiderosMobile" winrt_package="com.yourdomain.yourapp" osx_org="GiderosMobile" encryptAssets="0" scaleMode="7" osx_bundle="com.yourdomain." backgroundColor="#ffffff" osx_installerId="" winrt_org="GiderosMobile" autorotation="1" android_template="0" osx_signingId="" html5_symbols="0" tv_icon="" mouseToTouch="1" encryptCode="0">
+ <properties mouseTouchOrder="0" splash_h_image="" html5_host="" version_code="1" scaleMode="7" packageName="com.yourdomain.yourapp" osx_signingId="" encryptAssets="0" vsync="1" build_number="1" html5_pack="0" winrt_package="com.yourdomain.yourapp" mouseToTouch="1" osx_domain="giderosmobile.com" windowWidth="0" architecture="0" autorotation="1" html5_symbols="0" windowHeight="0" fps="30" app_icon="" disableSplash="0" logicalHeight="800" android_template="0" html5_fbload="100" version="1.0" splashScaleMode="0" touchToMouse="1" osx_bundle="com.yourdomain." exportMode="0" encryptCode="0" ios_bundle="com.yourdomain." html5_fbinstant="0" html5_wasm="0" retinaDisplay="0" iosDevice="0" app_name="" html5_mem="256" tv_icon="" logicalWidth="600" mainluaOnly="0" backgroundColor="#ffffff" winrt_org="GiderosMobile" osx_installerId="" win_domain="giderosmobile.com" osx_category="5" html5_crash="" orientation="1" win_org="GiderosMobile" osx_org="GiderosMobile" splash_v_image="">
   <imageScales/>
   <plugins/>
   <exports/>
  </properties>
  <folder name="classes">
   <file source="Animal.lua"/>
+  <file name="assets/classes/Box.lua"/>
   <file source="Chunck.lua"/>
   <file source="FlippingCard.lua"/>
   <file source="NdShape.lua"/>
@@ -16,8 +17,15 @@
   <file source="demoManager.lua"/>
   <file source="procgen.lua"/>
  </folder>
+ <folder name="fog">
+  <file name="assets/fog/fShader.glsl"/>
+  <file name="assets/fog/fShader.hlsl"/>
+  <file name="assets/fog/fog.lua"/>
+  <file name="assets/fog/vShader.glsl"/>
+  <file name="assets/fog/vShader.hlsl"/>
+ </folder>
  <folder name="mixins">
-  <file source="mixinState.lua"/>
+  <file name="assets/mixins/mixinAnimationState.lua"/>
   <file source="tkhnomanZoom.lua"/>
  </folder>
  <folder name="rsc">
@@ -43,12 +51,14 @@
  <file source="main.lua"/>
  <dependency from="Chunck.lua" to="config.lua"/>
  <dependency from="Chunck.lua" to="diamondNoise.lua"/>
- <dependency from="Chunck.lua" to="utils.lua"/>
  <dependency from="Chunck.lua" to="chunckMeshes.lua"/>
+ <dependency from="Chunck.lua" to="utils.lua"/>
  <dependency from="FlippingCard.lua" to="Chunck.lua"/>
- <dependency from="World.lua" to="overflyButton.lua"/>
- <dependency from="World.lua" to="FlippingCard.lua"/>
+ <dependency from="FlippingCard.lua" to="assets/mixins/mixinAnimationState.lua"/>
  <dependency from="World.lua" to="Chunck.lua"/>
+ <dependency from="World.lua" to="FlippingCard.lua"/>
+ <dependency from="World.lua" to="assets/mixins/mixinAnimationState.lua"/>
+ <dependency from="World.lua" to="overflyButton.lua"/>
  <dependency from="chunckMeshes.lua" to="config.lua"/>
  <dependency from="debugState.lua" to="gameState.lua"/>
  <dependency from="demoManager.lua" to="tkhnomanZoom.lua"/>
@@ -58,10 +68,13 @@
  <dependency from="diamondNoise.lua" to="utils.lua"/>
  <dependency from="gameState.lua" to="tkhnomanZoom.lua"/>
  <dependency from="gameState.lua" to="zoomarea.lua"/>
- <dependency from="overflyButton.lua" to="mixinState.lua"/>
+ <dependency from="overflyState.lua" to="assets/classes/Box.lua"/>
+ <dependency from="overflyState.lua" to="Chunck.lua"/>
+ <dependency from="overflyState.lua" to="assets/fog/fog.lua"/>
  <dependency from="overflyState.lua" to="gameState.lua"/>
- <dependency from="worldState.lua" to="gameState.lua"/>
  <dependency from="worldState.lua" to="World.lua"/>
+ <dependency from="worldState.lua" to="assets/mixins/mixinAnimationState.lua"/>
+ <dependency from="worldState.lua" to="gameState.lua"/>
  <dependency from="main.lua" to="gameState.lua"/>
  <dependency from="main.lua" to="worldState.lua"/>
 </project>

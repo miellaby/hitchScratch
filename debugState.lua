@@ -2,10 +2,9 @@
 
 -- debug
 debugScene = Mesh.new(true)
-debugState = {
+game.State.DEBUG = {
 	name = "debug",
-	before = nil,
-	after = nil,
-	iterate = nil,
-	scene = debugScene
+	enter = function()
+		game:setScene(debugScene)
+	end
 }

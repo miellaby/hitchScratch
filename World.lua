@@ -1,5 +1,126 @@
-World = Core.class(Sprite)
+
+
+local imax = 40
+local ipmax = math.pow(imax, 0.5)
+
+local State = {}
+State.START = {
+	name = "START",
+	enter = function(self)
+		self:setRotationX(START_ANGLE)
+		self:setZ(-600)
+		self:setY(-180)
+	end,
+	animate= function(self, iteration)
+		local r = math.pow(iteration / imax, 0.5)
+		self:resetZoom(0.4)
+		self:setZ(1600 * r - 1600)
+		self:setRotationX(START_ANGLE + (OVERVIEW_ANGLE - START_ANGLE) * r)
+		-- self:setScale(1.5 * r)
+		if iteration == imax then
+			self:setState(State.OVERVIEW)
+		end
+	end
+}
+
+State.OVERVIEW = {
+	name="OVERVIEW",
+	enter = function(self)
+		self:setZ(0)
+		local m = self:getMatrix()
+		m:setRotationX(OVERVIEW_ANGLE)
+		self:setMatrix(m)
+		-- self:setRotationX(OVERVIEW_ANGLE)
+	end
+}
+
+State.FOCUSING = {
+	name = "FOCUSING",
+	enter = function(self)
+		stage:addChild(overflyButton);
+	end,
+	animate = function(self)
+		if self:getParent() == nil then
+			self:setState(State.FOCUSED)
+			return
+		end
+		local stillWork = false
+		
+		sc = self:getZoom()
+		if sc <= 0.94 then
+			self:resetZoom(sc + 0.04)
+			stillWork = true
+		end
+		
+		if self:getRotationX() > 0 then
+			self:setRotationX(self:getRotationX() - 2)
+			stillWork = true
+		else
+			self:setRotationX(0)
+		end
+		
+		local cx, cy = self.focusCard:getPosition()
+		-- print("z z cx cy", self:getScaleX(), p:getScaleX(), cx, cy)
+		-- local pi = Pixel.new(0x264040, 1, 10, 10);
+		-- pi:setPosition(cx, cy)
+		-- self.fullMap:addChild(pi);
+		-- self:zoomTo(-cx / p:getScaleX(), -cy / p:getScaleX())
+		-- self:zoomTo(-cx * self:getScaleX() / p:getScaleX(), -cy * self:getScaleX() / p:getScaleX())
+		print(self:getScaleX())
+		self:zoomTo(-cx * self:getScaleX(), -cy * self:getScaleX())
+
+		if not stillWork then
+			self:setState(State.FOCUSED)
+		end
+	end
+}
+
+State.FOCUSED = {
+	name = "FOCUSED",
+	enter = function(self)
+		self:setRotationX(0)
+		_ = self:getParent() and self:getParent():setScale(0.98, 0.98, 0.98)
+		stage:addChild(overflyButton);
+	end,
+	leave = function(self)
+		overflyButton:removeFromParent()
+	end
+}
+
+State.UNFOCUSING = {
+	name = "UNFOCUSING",
+	enter = function(self)
+		-- _ = self:getParent() and self:getParent():setScale(0.9)
+		if self.focusCard ~= nil then
+			self.focusCard:land()
+			self.focusCard = nil
+		end
+	end,
+	animate = function(self)
+		if self:getParent() == nil then
+			self:setState(State.OVERVIEW)
+			return
+		end
+		local stillWork = false
+		sc = self:getZoom()
+		if sc > 0.4 then
+			self:resetZoom(sc - 0.04)
+			stillWork = true
+		end
+		if self:getRotationX() < OVERVIEW_ANGLE then
+			self:setRotationX(self:getRotationX() + 2)
+			stillWork = true
+		end
+		if not stillWork then
+			self:setState(State.OVERVIEW)
+		end
+	end
+}
 	
+
+World = Core.class(Mesh)
+mixinAnimationState.mixin(World)
+
 function World:init(...)
 	--  print(self)
 	self.chunckIndex = {} -- index x-y des chuncks
@@ -9,30 +130,31 @@ function World:init(...)
 	self.cards = {} -- cards
 	self.toBeGenerated = {} -- chuncks en cours de génération
 	self.coBuildChunck = nil -- coroutine génération des chuncks
-
-	self:setAnchorPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9 / 2)
-	-- self:setAnchorPoint(0.5, 0.5)
 	
 	-- fond du monde (visible quand on retourne les cases)
 	self.background = Pixel.new(0x446644, 1, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5)
-	self.background:setPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2)
+	-- self.background:setPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2)
 	self.background:setAnchorPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2)
 	self:addChild(self.background)
 	
 	-- conteneur des cases
 	self.fullMap = Sprite.new()
-	self.fullMap:setPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2)
+	-- self.fullMap:setPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9.5 / 2)
 	self:addChild(self.fullMap)
 	
 	-- open first chunck
 	self:setNextChunck()
 	self:openChunck({ type="home" })
-	
-	self:setRotationX(OVERVIEW_ANGLE)
+
+	self:setState(State.START)
+
 	-- local m = Matrix.new()
 	-- m:setRotationX(OVERVIEW_ANGLE)
 	-- self:setMatrix(m)
 	
+	-- self:setAnchorPosition((CHUNCK_SIZE + CHUNCK_MARGIN) * 9 / 2, (CHUNCK_SIZE + CHUNCK_MARGIN) * 9 / 2)
+	-- self:setAnchorPoint(0.5, 0.5)
+	-- stage:setPosition(350, 250)
 
 end
 
@@ -69,7 +191,7 @@ end
 function World:turnChunckIntoCard(chunck)
 	chunck:getBack():setZ(0)
 	local card = FlippingCard:new(true, chunck, false)
-	card:setPosition(chunck.x * (CHUNCK_SIZE + CHUNCK_MARGIN), chunck.y * (CHUNCK_SIZE + CHUNCK_MARGIN))
+	card:setPosition(-chunck.x * (CHUNCK_SIZE + CHUNCK_MARGIN), chunck.y * (CHUNCK_SIZE + CHUNCK_MARGIN))
 	table.insert(self.cards, card)
 	self.fullMap:addChild(card)
 end
@@ -84,7 +206,7 @@ function World:openChunck(def)
 	local newBack = newChunck:getBack()
 	newBack:setAnchorPoint(0.5, 0.5)
 	newBack:setZ(1)
-	newBack:setPosition(newChunck.x * (CHUNCK_SIZE + CHUNCK_MARGIN), newChunck.y * (CHUNCK_SIZE + CHUNCK_MARGIN))
+	newBack:setPosition(-newChunck.x * (CHUNCK_SIZE + CHUNCK_MARGIN), newChunck.y * (CHUNCK_SIZE + CHUNCK_MARGIN))
 	self.fullMap:addChild(newBack)
 
 	table.insert(self.chuncks, newChunck)
@@ -128,76 +250,52 @@ function World:resumeGeneration()
 	end
 end
 
-function World:doFocusing()
-	local p = self:getParent()
-	if not p then return end
-	local sc = p:getScaleX()
-	local stillWork = false;
-	
-	if self.focusCard then
-		if sc <= 0.86 then
-			p:setScale(sc + 0.04, sc + 0.04, sc + 0.04)
-			stillWork = true
-		end
-		if self:getRotationX() > 0 then
-			self:setRotationX(self:getRotationX() - 2)
-			stillWork = true
-		end
-		
-		local cx, cy = self.focusCard:getPosition()
-		local ax, ay = self:getAnchorPosition()
-		print("z z cx cy ax ay", self:getScaleX(), p:getScaleX(), cx, cy, ax, ay)
-		local pi = Pixel.new(0x264040, 1, 10, 10);
-		pi:setPosition(cx, cy)
-		self.fullMap:addChild(pi);
-		-- self:zoomTo(-cx / p:getScaleX(), -cy / p:getScaleX())
-		-- self:zoomTo(-cx * self:getScaleX() / p:getScaleX(), -cy * self:getScaleX() / p:getScaleX())
-		self:zoomTo(-cx * self:getScaleX(), -cy * self:getScaleX())
-	else
-		if sc > 0.3 then
-			p:setScale(sc - 0.04, sc - 0.04, sc - 0.04)
-			stillWork = true
-		end
-		if self:getRotationX() < OVERVIEW_ANGLE then
-			self:setRotationX(self:getRotationX() + 2)
-			stillWork = true
-		end
-	end
-	_ = stillWork or self:removeEventListener(Event.ENTER_FRAME, self.doFocusing, self)
-end
-
-function World:unfocus(card)
-	self.focusCard = nil
-	self:addEventListener(Event.ENTER_FRAME, self.doFocusing, self)
-	overflyButton:removeFromParent();
+function World:unfocus()
+	self:setState(State.UNFOCUSING)
 end
 
 function World:focus(card)
 	self.focusCard = card
-	stage:addChild(overflyButton);
-	self:addEventListener(Event.ENTER_FRAME, self.doFocusing, self)
+	self:setState(State.FOCUSING)
+end
+
+function World:startAnimation()
+	self:setState(State.START)
 end
 
 
-function World:touchCard(event)
-	if not self:isVisible() then
+function World:touch(event)
+	-- print("World:touch")
+	if self:getParent() == nil or not self:isVisible() then
 		return
 	end
 	
-	local touch = event.touch
+	local lastCard = self.focusCard
+
+	local touchedCard = nil
 	for _, card in pairs(self.cards) do
-		if card:hitTestPoint(touch.x, touch.y, true) then
-			local lastCard = self.focusCard
-			if card.up and not card.goingUp or not card.up and card.goingUp then
-				self:unfocus()
-			else
-				self:focus(card)
-				card:flip()
+		if card:hitTestPoint(event.touch.x, event.touch.y, true) then
+			touchedCard = card
+		end
+	end
+	
+	if touchedCard ~= nil then
+		if touchedCard == self.focusCard then
+			if touchedCard.state.name == 'up' then
+			   game:setState(game.State.OVERFLY)
 			end
-			card:goUp()
-			if lastCard and lastCard ~= card and (lastCard.up and not lastCard.goingUp or not lastCard.up and lastCard.goingUp) then
-				lastCard:goUp()
+		else
+			touchedCard:touch()
+			if touchedCard.state.name ~= 'landing'  then
+				self:focus(touchedCard)
+			elseif touchedCard == self.focusCard then
+				self:unfocus()
 			end
 		end
+	else
+		self:unfocus()
+	end
+	if lastCard ~= nil and lastCard ~= touchedCard then
+		lastCard:land()
 	end
 end

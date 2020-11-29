@@ -62,9 +62,9 @@ stage:addEventListener(Event.KEY_UP, function(event)
 		demoSprite = currentDemo.init()
 		debugScene:addChildAt(demoSprite, 1)
 		if currentDemo.name == 'nothing' then
-			setGameState(gameSates.world)
+			game:setState(game.State.WORLD)
 		else
-			setGameState(gameStates.debug)
+			game:setState(game.State.DEBUG)
 		end
 	end
 end)

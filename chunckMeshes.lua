@@ -1,3 +1,5 @@
+pixelSize = 1
+	
 
 -- called once to build chunckMesh
 local function buildSquareMesh()
@@ -32,7 +34,7 @@ local function buildSquareMesh()
 	return mesh
 end
 
--- called once to build shared3dMesh
+-- called once to build chunck3dMesh
 local function build3dSquareMesh()
 	local mesh = Mesh.new(true)
 	
@@ -40,19 +42,19 @@ local function build3dSquareMesh()
 	local i = 1
 	for y = 0, CHUNCK_SIZE - 1, 2 do
 		for x = 0, CHUNCK_SIZE - 1, 2 do
-			mesh:setVertex(i, x * 10, y * 10, 0)
+			mesh:setVertex(i, x * pixelSize, y * pixelSize, 0)
 			i = i + 1
-			mesh:setVertex(i, x * 10 + 20, y * 20, 0)
+			mesh:setVertex(i, x * pixelSize + 2 * pixelSize, y * 2 * pixelSize, 0)
 			i = i + 1
-			mesh:setVertex(i, x * 10, y * 10 + 20, 0)
+			mesh:setVertex(i, x * pixelSize, y * pixelSize + 2 * pixelSize, 0)
 			i = i + 1
-			mesh:setVertex(i, x * 10 + 20, y * 10 + 20, 0)
+			mesh:setVertex(i, x * pixelSize + 2 * pixelSize, y * pixelSize + 2 * pixelSize, 0)
 			i = i + 1
-			mesh:setVertex(i, x * 10 + 10, y * 10 + 10, 0)
+			mesh:setVertex(i, x * pixelSize + pixelSize, y * pixelSize + pixelSize, 0)
 			i = i + 1
 		end
 	end
-	print(i)
+	-- print(i)
 
 	local i, j = 1, 1
 	for y = 0, CHUNCK_SIZE - 1, 2 do
@@ -85,5 +87,7 @@ end
 -- two local mesh objects are reused:
 --  a 2D mesh which is used to generate a 2D rendition (map tile) of the chunck
 --  a 3D mesh for the 3D rendering
-chunckMesh = buildSquareMesh()
-chunck3dMesh = build3dSquareMesh()
+chunckMeshes = {
+ map2d = buildSquareMesh(),
+ map3d = build3dSquareMesh()
+}

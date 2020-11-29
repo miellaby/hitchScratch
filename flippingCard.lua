@@ -1,4 +1,72 @@
 local dirt = Texture.new("rsc/dirtf.png", false, {wrap = Texture.REPEAT});
+
+local State = {}
+
+State.DOWN = {
+	name = "down",
+	enter = function(self)
+		self:setZ(0)
+		self:setRotationX(180)
+	end
+}
+
+State.RAISING = {
+	name = "raising",
+	enter = function(self)
+		self:setRotationX(180)
+	end,
+	animate = function(self, iteration)
+		self:setZ(20 * math.log(1 + 100 * iteration) - 20)
+		if iteration == 40 then
+			self:setState(State.UP)
+		end
+	end
+}
+
+State.LANDING = {
+	name = "landing",
+	enter = function(self)
+		self:setRotation(180)
+		self:setRotationY(0)
+		self:setRotationX(180)
+	end,
+	animate = function(self, iteration)
+		self:setZ(20 * math.log(1 + 100 * (40 - iteration)) - 20)
+		if iteration == 40 then
+			self:setState(State.DOWN)
+		end
+	end
+}
+
+State.UP = {
+	name = "up",
+	enter = function(self)
+		self:setZ(20 * math.log(1 + 4000) - 20)
+	end
+}
+
+State.FLIPPING = {
+	name = "flipping",
+	animate = function(self, iteration)
+		self:setRotationX(iteration * 36 / 8)
+		self:setRotationY(iteration * 36 / 4)
+		self:setRotation(- iteration * 36 / 8)
+		self:setZ(20 * math.log(1 + 100 * iteration) - 20)
+		-- self:setZ(100 * math.sin(math.pi * iteration / 40) - 20)
+		-- self.chunck:getMap():setAlpha(0.6 - 0.4 * math.cos(iteration / 41 * math.pi))
+		if iteration == 40 then
+			self:setState(State.UP)
+		end
+	end
+}
+
+State.HIDDEN = {
+	name = "hidden",
+	enter = function(self)
+		self:setZ(-21)
+	end
+}
+
 local function face(l,g,z,stuff,rx,ry)
 	c=Sprite.new()
 	sb=NdShape.new()
@@ -17,7 +85,7 @@ local function face(l,g,z,stuff,rx,ry)
 	if stuff then
 		s=NdShape.new()
 		sb:addChild(s)
-		s:setLineStyle(4,0x004000,1.0)
+		s:setLineStyle(2,0x004000,1.0)
 		s:beginPath()
 		s:rect(0,0,l,g)
 		s:stroke()
@@ -30,69 +98,43 @@ local function face(l,g,z,stuff,rx,ry)
 end
 
 FlippingCard = Core.class(Mesh)
+mixinAnimationState.mixin(FlippingCard)
 
 function FlippingCard:init(what, is3d, chunck, flipped)
-    print(chunck.name)
+    -- print(chunck.name)
 	self.chunck = chunck
-	self.flipped = flipped
-	self.up = false
+	self:addChild(face(CHUNCK_SIZE,CHUNCK_SIZE,-25, chunck:getMap(),0,180))
 	self:addChild(face(CHUNCK_SIZE,CHUNCK_SIZE,25, chunck:getBack(),180,0))
 	self:addChild(face(CHUNCK_SIZE,50,CHUNCK_SIZE/2,nil,90,0))
 	self:addChild(face(CHUNCK_SIZE,50,CHUNCK_SIZE/2,nil,-90,0))
-	self:addChild(face(CHUNCK_SIZE,CHUNCK_SIZE,25, chunck:getMap(),0,0))
 	self:addChild(face(CHUNCK_SIZE,50,CHUNCK_SIZE/2,nil,90,90))
 	self:addChild(face(CHUNCK_SIZE,50,CHUNCK_SIZE/2,nil,90,-90))
-	self:setZ(-20)
-	_ = flipped and self:setRotationX(180)
+	
 	chunck:getBack():setPosition(0,0)
 	chunck:getMap():setPosition(0,0)
-	chunck:getMap():setAlpha(0.8)
+	-- chunck:getMap():setAlpha(0.8)
+	self:setState(flipped and State.DOWN or State.HIDDEN);
 end
 
-function FlippingCard:doGoUp()
-	if self.up then
-		self:setZ(math.exp(2 + (400 - self.incUp) / 100) - math.exp(2))
-	else
-		self:setZ(math.exp(2 + self.incUp / 100) - math.exp(2))
+
+
+function FlippingCard:land()
+	if self.state == State.DOWN or self.state == State.LANDING then
+		return
 	end
-	self.incUp = self.incUp + 10
-	if self.incUp == 410 then
-		self.up = not self.up
-		self.goingUp = false
-		self:removeEventListener(Event.ENTER_FRAME, self.doGoUp, self)
-	end
+		
+	self:setState(State.LANDING)
 end
 
-function FlippingCard:goUp()
-	if self.goingUp then
-		self.up = not self.up
-		self.incUp = 400 - self.incUp
-	else
-		self.goingUp = true
-		self.incUp = 0
-		self:addEventListener(Event.ENTER_FRAME, self.doGoUp, self)
-	end
-	
-end
-
-function FlippingCard:doFlip()
-	self:setRotationX(self.inc * 36 / 8)
-	self:setRotationY(self.inc * 36 / 4)
-	self:setRotation(- self.inc * 36 / 8)
-	self.inc = self.inc + 1
-	self.chunck:getMap():setAlpha(0.4 + 0.3 * math.cos(self.inc / 10 * math.pi))
-	if self.inc == 41 then
-		self.flipping = false
-		self.flipped = true
-		self:removeEventListener(Event.ENTER_FRAME, self.doFlip, self)
+function FlippingCard:touch()
+	if self.state == State.HIDDEN then
+		self:setState(State.FLIPPING)
+	elseif self.state == State.DOWN or self.state == State.LANDING then
+		self:setState(State.RAISING)
+	elseif self.state == State.UP or self.state == State.RAISING or self.state == State.FLIPPING then
+		self:setState(state.LANDING)
 	end
 end
 
-function FlippingCard:flip()
-	if not self.flipped and not self.flipping then
-		self.flipping = true
-		self.inc = 0
-		self:addEventListener(Event.ENTER_FRAME, self.doFlip, self)
-	end
-end
 
+FlippingCard.State = State

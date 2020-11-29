@@ -5,33 +5,27 @@
 -- debug
 -- overfly
 
+game = stage
+mixinAnimationState.mixin(game)
+
 -- set of states
-gameStates = {}
+game.State = {}
 
 -- starting state
-gameStates.start = {
-	name = "start",
-	before = nil,
-	after = nil,
-	iterate = nil,
-	scene = nil
+game.State.START = {
+	name = "start"
 }
 
--- current state
-gameState = gameStates.start
 
-function setGameState(newState)
-	if newState == gameState then return end
-	_ = gameState.scene and zoomArea:removeChild(gameState.scene)
-	if newState.scene then
-		zoomArea:addChild(newState.scene)
-		attachZoom(newState.scene, 0.2, 1.5)
+-- current state
+function game:setScene(scene)
+	if zoomArea:getNumChildren() > 0 then
+		zoomArea:removeChildAt(1)
 	end
-	gameState = newState
+	if scene ~= nil then
+		zoomArea:addChild(scene)
+		attachZoom(scene, 0.5, 2, application:getLogicalWidth() * 1.5, application:getLogicalHeight() * 1.5, 1)
+	end
 end
 
-local iteration = 0
-stage:addEventListener(Event.ENTER_FRAME, function()
-	iteration = iteration + 1
-	_ = gameState.iterate and gameState.iterate()
-end)
+game:setState(game.START)

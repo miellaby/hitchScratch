@@ -1,7 +1,7 @@
 -- zoom area where main scene is set
 
 zoomArea = Mesh.new(true)
-zoomArea:setScale(0.3)
+-- zoomArea:setScale(0.3)
 zoomArea:setPosition(application:getContentWidth() / 2, application:getContentHeight() / 2)
 stage:addChild(zoomArea)
 
