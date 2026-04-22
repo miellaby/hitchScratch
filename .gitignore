@@ -1,0 +1,31 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files and folders
+.tmp/
+*.tmp
+*.temp
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build/output files
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.a
+
+# Logs
+*.log

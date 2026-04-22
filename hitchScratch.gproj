@@ -1,80 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
- <properties mouseTouchOrder="0" splash_h_image="" html5_host="" version_code="1" scaleMode="7" packageName="com.yourdomain.yourapp" osx_signingId="" encryptAssets="0" vsync="1" build_number="1" html5_pack="0" winrt_package="com.yourdomain.yourapp" mouseToTouch="1" osx_domain="giderosmobile.com" windowWidth="0" architecture="0" autorotation="1" html5_symbols="0" windowHeight="0" fps="30" app_icon="" disableSplash="0" logicalHeight="800" android_template="0" html5_fbload="100" version="1.0" splashScaleMode="0" touchToMouse="1" osx_bundle="com.yourdomain." exportMode="0" encryptCode="0" ios_bundle="com.yourdomain." html5_fbinstant="0" html5_wasm="0" retinaDisplay="0" iosDevice="0" app_name="" html5_mem="256" tv_icon="" logicalWidth="600" mainluaOnly="0" backgroundColor="#ffffff" winrt_org="GiderosMobile" osx_installerId="" win_domain="giderosmobile.com" osx_category="5" html5_crash="" orientation="1" win_org="GiderosMobile" osx_org="GiderosMobile" splash_v_image="">
-  <imageScales/>
-  <plugins/>
-  <exports/>
- </properties>
- <folder name="classes">
-  <file source="Animal.lua"/>
-  <file name="assets/classes/Box.lua"/>
-  <file source="Chunck.lua"/>
-  <file source="FlippingCard.lua"/>
-  <file source="NdShape.lua"/>
-  <file source="SvgSprite.lua"/>
-  <file source="World.lua"/>
- </folder>
- <folder name="draft">
-  <file source="demoManager.lua"/>
-  <file source="procgen.lua"/>
- </folder>
- <folder name="fog">
-  <file name="assets/fog/fShader.glsl"/>
-  <file name="assets/fog/fShader.hlsl"/>
-  <file name="assets/fog/fog.lua"/>
-  <file name="assets/fog/vShader.glsl"/>
-  <file name="assets/fog/vShader.hlsl"/>
- </folder>
- <folder name="mixins">
-  <file name="assets/mixins/mixinAnimationState.lua"/>
-  <file source="tkhnomanZoom.lua"/>
- </folder>
- <folder name="rsc">
-  <file source="dirtf.png"/>
- </folder>
- <folder name="services">
-  <folder name="components">
-   <file source="overflyButton.lua"/>
-   <file source="zoomarea.lua"/>
-  </folder>
-  <file name="assets/services/blur.lua"/>
-  <file source="chunckMeshes.lua"/>
-  <file source="diamondNoise.lua"/>
-  <file source="gameState.lua"/>
-  <file source="utils.lua"/>
- </folder>
- <folder name="states">
-  <file source="debugState.lua"/>
-  <file source="overflyState.lua"/>
-  <file source="worldState.lua"/>
- </folder>
- <file source="config.lua"/>
- <file source="main.lua"/>
- <dependency from="Chunck.lua" to="config.lua"/>
- <dependency from="Chunck.lua" to="diamondNoise.lua"/>
- <dependency from="Chunck.lua" to="chunckMeshes.lua"/>
- <dependency from="Chunck.lua" to="utils.lua"/>
- <dependency from="FlippingCard.lua" to="Chunck.lua"/>
- <dependency from="FlippingCard.lua" to="assets/mixins/mixinAnimationState.lua"/>
- <dependency from="World.lua" to="Chunck.lua"/>
- <dependency from="World.lua" to="FlippingCard.lua"/>
- <dependency from="World.lua" to="assets/mixins/mixinAnimationState.lua"/>
- <dependency from="World.lua" to="overflyButton.lua"/>
- <dependency from="chunckMeshes.lua" to="config.lua"/>
- <dependency from="debugState.lua" to="gameState.lua"/>
- <dependency from="demoManager.lua" to="tkhnomanZoom.lua"/>
- <dependency from="demoManager.lua" to="Chunck.lua"/>
- <dependency from="demoManager.lua" to="World.lua"/>
- <dependency from="demoManager.lua" to="procgen.lua"/>
- <dependency from="diamondNoise.lua" to="utils.lua"/>
- <dependency from="gameState.lua" to="tkhnomanZoom.lua"/>
- <dependency from="gameState.lua" to="zoomarea.lua"/>
- <dependency from="overflyState.lua" to="assets/classes/Box.lua"/>
- <dependency from="overflyState.lua" to="Chunck.lua"/>
- <dependency from="overflyState.lua" to="assets/fog/fog.lua"/>
- <dependency from="overflyState.lua" to="gameState.lua"/>
- <dependency from="worldState.lua" to="World.lua"/>
- <dependency from="worldState.lua" to="assets/mixins/mixinAnimationState.lua"/>
- <dependency from="worldState.lua" to="gameState.lua"/>
- <dependency from="main.lua" to="gameState.lua"/>
- <dependency from="main.lua" to="worldState.lua"/>
+    <properties scaleMode="7" logicalWidth="600" logicalHeight="800" windowWidth="0" windowHeight="0" autorotation="3" orientation="1" fps="30" vsync="1" version="1.0" version_code="1" build_number="1" mainluaOnly="0" retinaDisplay="0" mouseToTouch="1" touchToMouse="1" mouseTouchOrder="0" architecture="0" exportMode="0" iosDevice="0" ios_bundle="com.yourdomain." atv_bundle="com.yourdomain.yourapp-atv" macos_bundle="com.yourdomain.yourapp-macos" macos_category="5" qtexp_platform="0" qtexp_org="GiderosMobile" qtexp_domain="giderosmobile.com" osx_bundle="com.yourdomain." osx_signingId="" osx_installerId="" osx_category="5" winrt_org="GiderosMobile" winrt_package="com.yourdomain.yourapp" win32_console="0" win32_gapp="0" html5_host="" html5_crash="" html5_mem="256" html5_pack="0" html5_wasm="0" html5_symbols="0" html5_fbinstant="0" html5_pwa="0" html5_fbload="100" encryptCode="0" encryptAssets="0" app_icon="" tv_icon="" disableSplash="0" backgroundColor="#ffffff" splash_h_image="" splash_v_image="" app_name="" splashScaleMode="0">
+        <imageScales/>
+        <plugins/>
+        <exports/>
+    </properties>
+    <file source="assets/classes/Box.lua"/>
+    <file source="Chunck.lua"/>
+    <file source="SvgSprite.lua"/>
+    <file source="World.lua"/>
+    <file source="animal.lua"/>
+    <file source="assets/services/blur.lua"/>
+    <file source="chunckMeshes.lua"/>
+    <file source="config.lua"/>
+    <file source="debugState.lua"/>
+    <file source="demoManager.lua"/>
+    <file source="diamondNoise.lua"/>
+    <file source="assets/fog/fShader.glsl"/>
+    <file source="assets/fog/fShader.hlsl"/>
+    <file source="flippingCard.lua"/>
+    <file source="assets/fog/fog.lua"/>
+    <file source="gameState.lua"/>
+    <file source="main.lua"/>
+    <file source="assets/mixins/mixinAnimationState.lua"/>
+    <file source="ndShape.lua"/>
+    <file source="overflyButton.lua"/>
+    <file source="overflyState.lua"/>
+    <file source="procgen.lua"/>
+    <file source="tkhnomanZoom.lua"/>
+    <file source="utils.lua"/>
+    <file source="assets/fog/vShader.glsl"/>
+    <file source="assets/fog/vShader.hlsl"/>
+    <file source="worldState.lua"/>
+    <file source="zoomarea.lua"/>
+    <folder name="states"/>
+    <folder name="services">
+        <file name="assets/services/blur.lua"/>
+        <folder name="components"/>
+    </folder>
+    <folder name="rsc">
+        <file source="dirtf.png"/>
+    </folder>
+    <folder name="mixins">
+        <file name="assets/mixins/mixinAnimationState.lua"/>
+    </folder>
+    <folder name="fog">
+        <file name="assets/fog/fShader.glsl"/>
+        <file name="assets/fog/fShader.hlsl"/>
+        <file name="assets/fog/fog.lua"/>
+        <file name="assets/fog/vShader.glsl"/>
+        <file name="assets/fog/vShader.hlsl"/>
+    </folder>
+    <folder name="draft"/>
+    <folder name="classes">
+        <file name="assets/classes/Box.lua"/>
+    </folder>
+    <dependency from="Chunck.lua" to="diamondNoise.lua"/>
+    <dependency from="Chunck.lua" to="chunckMeshes.lua"/>
+    <dependency from="Chunck.lua" to="config.lua"/>
+    <dependency from="Chunck.lua" to="utils.lua"/>
+    <dependency from="World.lua" to="flippingCard.lua"/>
+    <dependency from="World.lua" to="Chunck.lua"/>
+    <dependency from="World.lua" to="overflyButton.lua"/>
+    <dependency from="World.lua" to="assets/mixins/mixinAnimationState.lua"/>
+    <dependency from="chunckMeshes.lua" to="config.lua"/>
+    <dependency from="debugState.lua" to="gameState.lua"/>
+    <dependency from="demoManager.lua" to="World.lua"/>
+    <dependency from="demoManager.lua" to="Chunck.lua"/>
+    <dependency from="demoManager.lua" to="procgen.lua"/>
+    <dependency from="demoManager.lua" to="tkhnomanZoom.lua"/>
+    <dependency from="diamondNoise.lua" to="utils.lua"/>
+    <dependency from="flippingCard.lua" to="Chunck.lua"/>
+    <dependency from="flippingCard.lua" to="assets/mixins/mixinAnimationState.lua"/>
+    <dependency from="gameState.lua" to="tkhnomanZoom.lua"/>
+    <dependency from="gameState.lua" to="zoomarea.lua"/>
+    <dependency from="overflyState.lua" to="gameState.lua"/>
+    <dependency from="overflyState.lua" to="Chunck.lua"/>
+    <dependency from="overflyState.lua" to="assets/classes/Box.lua"/>
+    <dependency from="overflyState.lua" to="assets/fog/fog.lua"/>
+    <dependency from="worldState.lua" to="World.lua"/>
+    <dependency from="worldState.lua" to="gameState.lua"/>
+    <dependency from="worldState.lua" to="assets/mixins/mixinAnimationState.lua"/>
+    <dependency from="main.lua" to="gameState.lua"/>
+    <dependency from="main.lua" to="worldState.lua"/>
 </project>
