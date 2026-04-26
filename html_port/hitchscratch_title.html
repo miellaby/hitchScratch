@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonance Game Title Screen</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#1a1a2e;
+  font-family:monospace;
+  overflow:hidden;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+#wrap{
+  position:relative;
+  border-radius:8px;
+  border:1px solid #334;
+  overflow:hidden;
+  box-shadow:0 0 40px rgba(0,180,255,0.08);
+  width:90vw;
+  max-width:800px;
+  height:70vw;
+  max-height:600px;
+  aspect-ratio: 4/3;
+}
+
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  min-width:300px;
+  min-height:300px;
+  z-index:1;
+}
+
+#title-overlay{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:20;
+  background:none;
+}
+
+#title-svg{
+  width:60%;
+  max-width:400px;
+  height:auto;
+}
+#title-svg text{
+  font-weight:bold;
+  text-shadow:0 0 8px rgba(0,0,0,0.7);
+  paint-order:stroke fill;
+}
+#title-svg text[font-size="14"]{
+  fill:#e0e0e0;
+  text-shadow:0 0 4px rgba(0,0,0,0.6);
+}
+
+#subtitle{
+  color:#e0e0e0;
+  font-size:14px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-top:10px;
+  text-shadow:0 0 6px rgba(0,0,0,0.8);
+  opacity:0.85;
+}
+
+#ui{
+  position:absolute;
+  bottom:10px;
+  left:10px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  pointer-events:none;
+  z-index:30;
+}
+
+.label{
+  font-size:11px;
+  color:#ffffff;
+  background:rgba(10,20,40,0.85);
+  border:1px solid rgba(100,160,220,0.3);
+  border-radius:4px;
+  padding:3px 8px;
+  letter-spacing:0.5px;
+  text-shadow:0 0 4px rgba(0,0,0,0.8);
+}
+
+#controls{
+  position:absolute;
+  bottom:10px;
+  right:10px;
+  display:flex;
+  gap:6px;
+  z-index:30;
+}
+
+button{
+  font-size:11px;
+  letter-spacing:0.5px;
+  padding:5px 12px;
+  border:1px solid rgba(100,160,220,0.35);
+  background:rgba(10,20,40,0.8);
+  color:#8bc4e8;
+  border-radius:4px;
+  cursor:pointer;
+  transition:background 0.15s;
+  pointer-events:auto;
+}
+
+button:hover{
+  background:rgba(40,80,140,0.6);
+}
+
+@media (max-width: 600px) {
+  #title-svg {
+    width:80%;
+  }
+  #subtitle {
+    font-size:10px;
+  }
+}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c"></canvas>
+  <div id="ui">
+    <span class="label" id="info">Generating terrain...</span>
+  </div>
+  <div id="controls">
+    <button id="regen">New Terrain</button>
+    <button id="toggleAnimal">Animal: ON</button>
+  </div>
+  <div id="title-overlay">
+    <svg id="title-svg" viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">
+      <!-- Low-poly mountain silhouette -->
+      <polygon points="50,150 100,50 150,100 200,20 250,60 300,30 350,80 400,150" 
+               fill="none" stroke="#ffffff" stroke-width="2" opacity="0.8"/>
+      
+      <!-- Title text with polygon effect -->
+      <text x="200" y="90" font-family="Arial, sans-serif" font-size="48" 
+            fill="#ffffff" text-anchor="middle" letter-spacing="4" font-weight="bold" text-shadow="0 0 8px rgba(0,0,0,0.7)">
+        Resonance
+      </text>
+      
+      <!-- Subtitle in SVG -->
+      <text x="200" y="130" font-family="Arial, sans-serif" font-size="14" 
+            fill="#e0e0e0" text-anchor="middle" letter-spacing="2" font-weight="bold">
+        Pair animals, regenerate world, explore!
+      </text>
+    </svg>
+    <div id="subtitle">Drag to explore &middot; Click New Terrain</div>
+  </div>
+</div>
+
+<script type="module">
+import { TerrainChunk } from './TerrainChunk.js';
+import { Camera } from './Camera.js';
+import { Renderer } from './Renderer.js';
+import { Mesh } from './Mesh.js';
+import { Animal } from './Animal.js';
+
+const canvas = document.getElementById('c');
+const infoEl = document.getElementById('info');
+
+// Create terrain chunk first (needed for animal elevation)
+const chunk = new TerrainChunk({ size: 128, pixel: 2 });
+chunk.generate();
+
+// Create renderer
+const renderer = new Renderer(canvas, {
+  terrainChunk: chunk,
+  fogColor: [0.55, 0.78, 0.95],
+  fogStart: 100.0,
+  fogRange: 500.0,
+  onInfoUpdate: (text) => { infoEl.textContent = text; }
+});
+
+// Create camera with auto-orbit for title screen
+const camera = new Camera();
+camera.setProjection(0.52, 1, 1, 2000);
+camera.setAzimuthElevation(0, 100);
+camera.setOrbitMode(200, 0.3);
+renderer.setCamera(camera);
+
+// Create mesh
+const mesh = new Mesh(renderer.gl, chunk.verts, chunk.colors, chunk.indices);
+
+// Center the chunk at origin
+const SIZE = 128, PIXEL = 2;
+const centerMatrix = new Float32Array(16);
+centerMatrix[0] = 1; centerMatrix[5] = 1; centerMatrix[10] = 1; centerMatrix[15] = 1;
+centerMatrix[12] = -SIZE * PIXEL / 2;
+centerMatrix[13] = -SIZE * PIXEL / 2;
+centerMatrix[14] = 0;
+
+renderer.addObject(mesh, centerMatrix);
+
+// Create animal
+const animal = new Animal(renderer.gl, { scale: 2, animalOn: true });
+// Add animal (which has mesh, modelMatrix, and update method) to renderer
+renderer.addObject(animal);
+
+// Start rendering
+renderer.start();
+
+// Button event handlers
+document.getElementById('regen').addEventListener('click', () => {
+  chunk.generate();
+  mesh.update(chunk.verts, chunk.colors, chunk.indices);
+});
+
+// Toggle animal not implemented yet
+document.getElementById('toggleAnimal').addEventListener('click', function() {
+  // TODO: implement animal toggle in new architecture
+  this.textContent = 'Animal: coming soon';
+});
+
+// Update subtitle opacity on mouse movement
+let lastMove = Date.now();
+canvas.addEventListener('mousemove', () => {
+  lastMove = Date.now();
+  document.getElementById('subtitle').style.opacity = '0.4';
+});
+
+// Fade subtitle after 3 seconds of inactivity
+setInterval(() => {
+  const elapsed = Date.now() - lastMove;
+  const opacity = Math.max(0.1, 0.8 - elapsed / 5000);
+  document.getElementById('subtitle').style.opacity = opacity;
+}, 100);
+</script>
+</body>
+</html>

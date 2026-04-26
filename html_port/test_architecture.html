@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Engine Architecture Test</title>
+<style>
+body { margin: 0; background: #111; }
+canvas { display: block; width: 100vw; height: 100vh; }
+#info { position: absolute; top: 10px; left: 10px; color: white; font-family: monospace; background: rgba(0,0,0,0.7); padding: 5px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="info">Loading...</div>
+
+<script type="module">
+import { TerrainChunk } from './TerrainChunk.js';
+import { Camera } from './Camera.js';
+import { Renderer } from './Renderer.js';
+import { Mesh } from './Mesh.js';
+
+const canvas = document.getElementById('c');
+const renderer = new Renderer(canvas, {
+  onInfoUpdate: (text) => document.getElementById('info').textContent = text
+});
+
+// Create camera
+const camera = new Camera();
+camera.setProjection(0.52, 1, 1, 2000);
+camera.setManualMode();
+renderer.setCamera(camera);
+
+// Create terrain chunk (pure data)
+const chunk = new TerrainChunk({ size: 128, pixel: 2 });
+chunk.generate();
+
+// Create mesh from chunk data using renderer's GL context
+const mesh = new Mesh(renderer.gl, chunk.verts, chunk.colors, chunk.indices);
+
+// Center the chunk at origin: translate by (-SIZE*PIXEL/2, -SIZE*PIXEL/2, 0)
+const SIZE = 128, PIXEL = 2;
+const centerMatrix = new Float32Array(16);
+centerMatrix[0] = 1; centerMatrix[5] = 1; centerMatrix[10] = 1; centerMatrix[15] = 1;
+centerMatrix[12] = -SIZE * PIXEL / 2; // -128
+centerMatrix[13] = -SIZE * PIXEL / 2; // -128
+centerMatrix[14] = 0;
+
+// Add to renderer
+renderer.addObject(mesh, centerMatrix);
+
+// Set up camera properly for manual view
+camera.setManualMode();
+camera.rotX = -1.0;  // Looking down (default from original)
+camera.rotZ = 0.15;
+camera.distance = 400;
+
+// Start rendering
+renderer.start();
+
+// You can now:
+// - Add more chunks: renderer.addObject(mesh2, modelMatrix2);
+// - Switch camera: camera.setOrbitMode(800, 1.0); renderer.setCamera(camera);
+// - Move camera: camera.setPosition(x, y, z); camera.lookAt(x,y,z, tx,ty,tz, ux,uy,uz);
+</script>
+</body>
+</html>
